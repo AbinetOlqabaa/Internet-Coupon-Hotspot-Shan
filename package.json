@@ -9,10 +9,15 @@
     "start": "node server.ts",
     "preview": "vite preview",
     "test": "npx vitest run --root Internet_Coupon_Hotspot_Kernel/server && npx vitest run --root Internet_Coupon_Hotspot_Kernel/client",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:build": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/android": "^7.0.1",
+    "@capacitor/cli": "^7.0.1",
+    "@capacitor/core": "^7.0.1",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",

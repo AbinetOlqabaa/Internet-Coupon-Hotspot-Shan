@@ -1,0 +1,23 @@
+{
+	"appId": "com.hotspot.internetcoupon",
+	"appName": "OB Hotspot",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1500,
+			"launchAutoHide": true,
+			"backgroundColor": "#102A43",
+			"androidSplashResourceName": "splash"
+		},
+		"CapacitorCookies": {
+			"enabled": true
+		},
+		"CapacitorHttp": {
+			"enabled": true
+		}
+	}
+}
