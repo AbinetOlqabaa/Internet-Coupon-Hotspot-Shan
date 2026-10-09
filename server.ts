@@ -1,60 +1,68 @@
-/**
- * Minimal Technical Kernel Server
- * Android-First Internet Coupon Hotspot Project
- */
-import express, { Request, Response } from 'express';
-import { createServer as createViteServer } from 'vite';
+import 'dotenv/config';
+import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { app as apiApp } from './Internet_Coupon_Hotspot_Kernel/server/src/app.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-
-async function startServer() {
+async function bootstrap() {
   const app = express();
+  const PORT = Number(process.env.PORT) || 3000;
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  app.use(express.json());
-
-  // Technical Kernel Health Endpoint
-  app.get('/api/health', (_req: Request, res: Response) => {
-    res.json({
-      status: 'ok',
+  // Legacy kernel health endpoint compatibility
+  app.get('/api/health', (_req, res) => {
+    res.status(200).json({
+      status: 'healthy',
       service: 'internet-coupon-hotspot-kernel',
-      uptime: Math.round(process.uptime()),
+      version: '0.1.0',
       timestamp: new Date().toISOString(),
+      uptimeSeconds: Math.floor(process.uptime()),
       environment: process.env.NODE_ENV || 'development',
-      nodeVersion: process.version,
-      androidReadiness: {
-        capacitorCompatible: true,
-        networkLayerSeparated: true,
-        businessLogicDeferred: true,
-      },
+      kernelState: 'technical_landing_ready',
+      targetPlatform: 'Android-first Full-Stack'
     });
   });
 
-  // Vite Dev Server middleware or Static file serving
-  if (process.env.NODE_ENV === 'production') {
-    const distPath = path.resolve(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.resolve(distPath, 'index.html'));
-    });
-  } else {
+  // Delegate API requests to the authoritative imported Express application
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return (apiApp as any)(req, res, next);
+    }
+    next();
+  });
+
+  const clientDir = path.resolve(__dirname, 'Internet_Coupon_Hotspot_Kernel/client');
+
+  if (!isProduction) {
+    // Development mode: Vite middleware handles client routing and assets
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      root: clientDir,
+      server: {
+        middlewareMode: true,
+        host: '0.0.0.0',
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
+  } else {
+    // Production mode: serve built client assets from client/dist or dist
+    const distPath = path.resolve(clientDir, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.resolve(distPath, 'index.html'));
+    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Kernel server listening on http://0.0.0.0:${PORT}`);
+    console.log(`[Kernel] Unified server listening on http://0.0.0.0:${PORT} (${isProduction ? 'production' : 'development'})`);
   });
 }
 
-startServer().catch((err) => {
-  console.error('Fatal error starting kernel server:', err);
+bootstrap().catch((err) => {
+  console.error('[Kernel] Failed to start server:', err);
   process.exit(1);
 });

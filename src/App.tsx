@@ -1,67 +1,62 @@
-/**
- * Minimal Technical Kernel Health & Status Page
- * Internet Coupon Hotspot Project
- */
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Server,
-  Smartphone,
+  Activity,
   CheckCircle2,
-  XCircle,
+  AlertCircle,
   RefreshCw,
-  Layers,
-  Terminal,
-  Clock,
-  ShieldCheck,
   Cpu,
-  FileCode2,
+  Smartphone,
+  Layers,
+  FileCode,
+  ShieldCheck,
 } from 'lucide-react';
 
-interface HealthResponse {
+interface BackendHealthResponse {
   status: string;
   service: string;
-  uptime: number;
+  version: string;
   timestamp: string;
+  uptimeSeconds: number;
   environment: string;
-  nodeVersion: string;
-  androidReadiness?: {
-    capacitorCompatible: boolean;
-    networkLayerSeparated: boolean;
-    businessLogicDeferred: boolean;
-  };
+  kernelState: string;
+  awaitingInstructionPack: boolean;
+  targetPlatform: string;
 }
 
 export default function App() {
-  const [healthData, setHealthData] = useState<HealthResponse | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [healthData, setHealthData] = useState<BackendHealthResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
 
   const checkHealth = useCallback(async () => {
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
-    const startTime = performance.now();
+    const start = performance.now();
+
     try {
       const response = await fetch('/api/health', {
         headers: { Accept: 'application/json' },
       });
-      const endTime = performance.now();
-      setLatencyMs(Math.round(endTime - startTime));
+
+      const elapsed = Math.round(performance.now() - start);
+      setLatencyMs(elapsed);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`Backend responded with status code ${response.status}`);
       }
 
-      const data: HealthResponse = await response.json();
+      const data = (await response.json()) as BackendHealthResponse;
       setHealthData(data);
       setLastChecked(new Date());
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown communication error';
-      setError(message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown network error');
       setHealthData(null);
+      setLatencyMs(null);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
@@ -70,238 +65,203 @@ export default function App() {
   }, [checkHealth]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Top Banner */}
-      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+      {/* Top Header */}
+      <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-10 px-4 py-3 sm:px-6">
+        <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm shadow-cyan-500/10">
-              <Layers className="w-5 h-5" />
+            <div className="h-9 w-9 rounded-lg bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-base sm:text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">
                 Internet Coupon Hotspot
-                <span className="text-xs px-2 py-0.5 rounded-full font-mono bg-cyan-950 border border-cyan-800 text-cyan-300">
-                  Kernel v0.1.0
-                </span>
               </h1>
               <p className="text-xs text-slate-400">
-                Technical landing environment & boundary verification
+                Technical Project Kernel • Android-First Full-Stack
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <div
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                healthData?.status === 'ok'
-                  ? 'bg-emerald-950/60 border-emerald-600/40 text-emerald-300'
-                  : error
-                  ? 'bg-rose-950/60 border-rose-600/40 text-rose-300'
-                  : 'bg-amber-950/60 border-amber-600/40 text-amber-300'
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  healthData?.status === 'ok'
-                    ? 'bg-emerald-400 animate-pulse'
-                    : error
-                    ? 'bg-rose-400'
-                    : 'bg-amber-400 animate-ping'
-                }`}
-              />
-              {isLoading ? 'Checking...' : healthData?.status === 'ok' ? 'Online' : 'Degraded'}
-            </div>
-
-            <button
-              onClick={checkHealth}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-slate-800 hover:bg-slate-700 active:bg-slate-850 text-slate-200 rounded-lg border border-slate-700 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              Ping API
-            </button>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Awaiting .ai Instruction Pack
+            </span>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-4xl w-full mx-auto px-4 py-6 sm:py-8 space-y-6 flex-1">
-        {/* Kernel Objective Notice */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-4 sm:p-5">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 mt-0.5 shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h2 className="text-sm font-semibold text-slate-200">
-                Phase 0: Technical Kernel Landing Environment
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        {/* Kernel Status Overview */}
+        <section className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                <Activity className="h-4 w-4 text-cyan-400" />
+                Kernel Health Verification
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                This project is intentionally a minimal runtime kernel established to verify the
-                full-stack communication boundary and build pipeline. Application features
-                (coupon issuing, customer database, hotspot network management, payment accounting)
-                remain strictly deferred until the complete <code className="text-cyan-300 bg-slate-800 px-1 py-0.5 rounded font-mono text-xs">.ai</code> instruction pack is imported.
+              <p className="text-xs text-slate-400 mt-0.5">
+                Verifies client-to-backend communication over the local Express API boundary.
+              </p>
+            </div>
+
+            <button
+              onClick={checkHealth}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-800 border border-slate-700 text-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed self-start sm:self-auto"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              Re-test Health Endpoint
+            </button>
+          </div>
+
+          {/* Status Metrics Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-4">
+            {/* Frontend Runtime */}
+            <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-medium">Frontend Runtime</span>
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              </div>
+              <p className="mt-2 text-sm font-semibold text-slate-100">React 19 + Vite SPA</p>
+              <p className="text-[11px] text-emerald-400/90 mt-0.5">Active & Rendered</p>
+            </div>
+
+            {/* Backend Runtime */}
+            <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-medium">Backend Health API</span>
+                {loading ? (
+                  <RefreshCw className="h-4 w-4 text-slate-400 animate-spin" />
+                ) : error ? (
+                  <AlertCircle className="h-4 w-4 text-rose-400" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                )}
+              </div>
+              <p className="mt-2 text-sm font-semibold text-slate-100">
+                {loading ? 'Checking...' : error ? 'Connection Error' : 'Express /api/health'}
+              </p>
+              <p className="text-[11px] mt-0.5">
+                {error ? (
+                  <span className="text-rose-400">{error}</span>
+                ) : healthData ? (
+                  <span className="text-emerald-400">
+                    Online {latencyMs !== null ? `(${latencyMs}ms)` : ''}
+                  </span>
+                ) : (
+                  <span className="text-slate-500">Awaiting probe</span>
+                )}
+              </p>
+            </div>
+
+            {/* Architecture State */}
+            <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-medium">Android Preparedness</span>
+                <Smartphone className="h-4 w-4 text-cyan-400" />
+              </div>
+              <p className="mt-2 text-sm font-semibold text-slate-100">Mobile Responsive</p>
+              <p className="text-[11px] text-cyan-400/90 mt-0.5">Capacitor/Packaging Compatible</p>
+            </div>
+          </div>
+
+          {/* Raw Endpoint Inspector */}
+          <div className="mt-4 pt-4 border-t border-slate-800/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
+                <Server className="h-3.5 w-3.5 text-cyan-400" />
+                GET /api/health Response
+              </span>
+              {lastChecked && (
+                <span className="text-[11px] text-slate-500 font-mono">
+                  Checked: {lastChecked.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+            <div className="rounded-lg bg-black/60 border border-slate-800 p-3 font-mono text-xs overflow-x-auto text-cyan-300">
+              {loading && !healthData ? (
+                <span className="text-slate-500">Querying endpoint...</span>
+              ) : error ? (
+                <span className="text-rose-400">{JSON.stringify({ error, status: 'failed' }, null, 2)}</span>
+              ) : healthData ? (
+                <pre>{JSON.stringify(healthData, null, 2)}</pre>
+              ) : (
+                <span className="text-slate-500">No data received.</span>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Technical Boundary & Scope Confirmation */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <Layers className="h-4 w-4 text-cyan-400" />
+              Kernel Boundaries
+            </h3>
+            <ul className="text-xs text-slate-400 space-y-2">
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                <span>Single clean backend entry point (<code className="text-slate-300">server.ts</code>) using Express.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                <span>Vite middleware integration in development, static bundle serving in production.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                <span>Responsive mobile-first layout without desktop-only assumptions.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                <span>Zero speculative dependencies or bloat before requirements ingestion.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-amber-400" />
+              Scope Discipline Status
+            </h3>
+            <div className="text-xs text-slate-400 space-y-1.5 leading-relaxed">
+              <p>
+                Business features are strictly suppressed at this stage. No mock coupons, no customer records, no hotspot manipulation, and no payment mocks have been instantiated.
+              </p>
+              <p className="text-slate-300 font-medium pt-1">
+                Awaiting upload of the authoritative <code className="text-amber-300">.ai</code> instruction pack to initiate application phases.
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Backend Endpoint Communication Status Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl shadow-black/20">
-          <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Server className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-semibold text-slate-200">
-                Full-Stack Boundary Verification (<code className="text-xs text-cyan-300 font-mono">/api/health</code>)
-              </h3>
-            </div>
-            {latencyMs !== null && (
-              <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60">
-                {latencyMs}ms RTT
-              </span>
-            )}
+        {/* Directory Structure & Next Step */}
+        <section className="bg-slate-900/40 border border-slate-800 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <FileCode className="h-4 w-4 text-cyan-400" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+              Kernel File Footprint
+            </h3>
           </div>
-
-          <div className="p-5 space-y-4">
-            {error ? (
-              <div className="bg-rose-950/30 border border-rose-800/40 rounded-xl p-4 flex items-start gap-3 text-rose-200 text-xs sm:text-sm">
-                <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold">Backend communication check failed</p>
-                  <p className="text-rose-300/80 mt-1">{error}</p>
-                </div>
-              </div>
-            ) : healthData ? (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium block">
-                    Endpoint Status
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span className="text-sm font-semibold text-emerald-300 capitalize">
-                      {healthData.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium block">
-                    Environment
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-1 text-slate-200 font-mono text-xs">
-                    <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{healthData.environment}</span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium block">
-                    Server Uptime
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-1 text-slate-200 font-mono text-xs">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{healthData.uptime}s</span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
-                  <span className="text-[11px] uppercase tracking-wider text-slate-500 font-medium block">
-                    Runtime Version
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-1 text-slate-200 font-mono text-xs">
-                    <Terminal className="w-3.5 h-3.5 text-purple-400" />
-                    <span>{healthData.nodeVersion}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="py-6 text-center text-xs text-slate-400">
-                Pinging backend runtime...
-              </div>
-            )}
-
-            {/* Raw JSON inspection block */}
-            <div className="bg-slate-950 rounded-xl border border-slate-800/80 p-3 overflow-x-auto">
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-850 text-xs text-slate-400">
-                <span className="flex items-center gap-1.5 font-mono">
-                  <FileCode2 className="w-3.5 h-3.5 text-slate-500" />
-                  GET /api/health Response Payload
-                </span>
-                {lastChecked && (
-                  <span className="text-[11px] text-slate-500">
-                    Checked {lastChecked.toLocaleTimeString()}
-                  </span>
-                )}
-              </div>
-              <pre className="text-xs font-mono text-slate-300 leading-relaxed overflow-x-auto">
-                {healthData ? JSON.stringify(healthData, null, 2) : error || '// No response payload'}
-              </pre>
-            </div>
+          <div className="font-mono text-[11px] text-slate-400 bg-slate-950/80 p-3 rounded-lg border border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+            <div>├── /server.ts (Express + Vite runtime)</div>
+            <div>├── /src/App.tsx (Technical status page)</div>
+            <div>├── /src/main.tsx (Client entry)</div>
+            <div>├── /src/index.css (Tailwind CSS)</div>
+            <div>├── /index.html (HTML entry point)</div>
+            <div>├── /metadata.json (Project metadata)</div>
+            <div>├── /package.json (Scripts: dev, build, start)</div>
+            <div>├── /README.md (Kernel verification instructions)</div>
           </div>
-        </div>
-
-        {/* Future Android & Architecture Read-State */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-            <div className="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
-              <Smartphone className="w-4 h-4" />
-              <h4>Android Packaging Readiness</h4>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Responsive viewport geometry configured for mobile phones, tablets, and desktop
-              inspection. Clean separation between UI layers and runtime allows direct wrapping
-              via Capacitor or WebView without architectural friction.
-            </p>
-            <div className="text-xs text-slate-400 space-y-1.5 pt-1">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Responsive touch-friendly interface</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Zero premature native device locks or permissions</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>External network gateway abstraction reserved for Phase 1+</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
-            <div className="flex items-center gap-2 text-purple-400 font-semibold text-sm">
-              <Terminal className="w-4 h-4" />
-              <h4>Technical Kernel Scope Gates</h4>
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Business features are intentionally not created. No mock coupons, no dummy customer
-              records, and no speculative network managers are present.
-            </p>
-            <div className="text-xs text-slate-400 space-y-1.5 pt-1">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>TypeScript build & compilation verified</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Vite SPA + Express server mounted</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Awaiting author .ai ZIP archive upload</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/80 py-4 px-4 text-center">
-        <p className="text-xs text-slate-500 font-mono">
-          Internet Coupon Hotspot Kernel • Production-Oriented Landing Baseline • Awaiting .ai Archive
-        </p>
+      <footer className="border-t border-slate-800 px-4 py-3 text-center text-xs text-slate-500">
+        Internet Coupon Hotspot Kernel • Standby for .ai Instruction Pack Import
       </footer>
     </div>
   );

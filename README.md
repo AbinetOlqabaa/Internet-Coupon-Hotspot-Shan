@@ -1,99 +1,107 @@
-# Internet Coupon Hotspot — Technical Project Kernel
+# Internet Coupon Hotspot — Full-Stack Application
 
-This repository contains the minimal, production-oriented technical kernel and landing environment for the proposed Android-first **Internet Coupon Hotspot** application.
+Production-oriented full-stack platform for the Android-first Internet Coupon Hotspot management system.
 
-> **IMPORTANT**: This is the technical baseline kernel, **not** the full application implementation. Application business features (coupon generation, customer records, session accounting, hotspot hardware control, payment processing) are intentionally deferred until the authoritative `.ai` instruction pack is uploaded.
+## Administrator Provisioning & Credential Security
 
----
+The application supports two secure administrator initialization paths:
 
-## Technical Stack
+1. **Environment-Driven Initialization**:
+   - Set `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD` (minimum 8 characters) in `.env`.
+   - On initial launch, the system automatically creates the primary `SUPER_ADMIN` with a unique cryptographic random salt and PBKDF2/SHA-512 hashing.
 
-- **Runtime & Backend**: Node.js, Express (`server.ts`)
-- **Frontend**: React 19, TypeScript
-- **Bundler & Tooling**: Vite, `@tailwindcss/vite`
-- **Target Form Factor**: Android phones and tablets (responsive layout, ready for Capacitor/WebView packaging), and desktop inspection
-
----
-
-## Project Structure
-
-```text
-├── index.html          # HTML entry point with synchronized metadata
-├── metadata.json       # Applet title and capability definitions
-├── package.json        # Dependencies and lifecycle scripts
-├── tsconfig.json       # TypeScript compiler options (bundler mode, DOM + Node types)
-├── vite.config.ts      # Vite configuration with Tailwind CSS plugin
-├── server.ts           # Minimal full-stack entry point with /api/health & Vite dev middleware
-├── src/
-│   ├── main.tsx        # React client bootstrap
-│   ├── App.tsx         # Responsive Technical Status & Boundary Verification page
-│   └── index.css       # Tailwind CSS v4 entry point
-├── .env.example        # Environment variable definitions
-└── README.md           # This setup, execution, and verification guide
-```
+2. **First-Run Bootstrap (`POST /api/v1/admin/bootstrap`)**:
+   - When no administrator exists in the database, the public bootstrap endpoint is unlocked.
+   - The setup form appears in the web interface to allow the owner to establish the primary SuperAdmin credentials.
+   - An optional `ADMIN_BOOTSTRAP_TOKEN` can be required via `.env` to prevent unauthorized initial registrations.
+   - **Permanent Lock**: As soon as the first `SUPER_ADMIN` is created, `/api/v1/admin/bootstrap` closes permanently and rejects any further initialization requests.
+   - Administrators can update credentials anytime from the Admin Dashboard (**Account Security** tab).
 
 ---
 
-## Scripts & Execution
+## Technical Stack & Architecture
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+- **Client SPA (`Internet_Coupon_Hotspot_Kernel/client`)**: React 19, TypeScript, centralized CSS design tokens (`theme.css`), responsive layouts (`styles.css`), Vite 6.
+- **API Monolith (`Internet_Coupon_Hotspot_Kernel/server`)**: Node.js 22, Express 4.x, TypeScript, Helmet security headers, CORS, Zod validation, PBKDF2/SHA-512 authentication, general ledger accounting.
+- **Unified Server Runtime (`server.ts`)**: Single entry point running on port 3000. Delegates `/api/*` to the Express backend and integrates Vite middleware in development (serving static bundle in production).
+- **Target Platform Compatibility**: Android mobile & tablet responsive layout, touch targets, and viewport metadata configured for hybrid packaging (Capacitor/PWA).
 
-### 2. Run Full-Stack Development Server
-Starts the Express server with Vite dev middleware on port 3000:
+---
+
+## Implemented Subsystems & Capabilities
+
+1. **Authentication & Session Management**:
+   - Cryptographic PBKDF2/SHA-512 password hashing with random salt and timing-safe comparison.
+   - Bearer session tokens with immediate revocation on logout or password change.
+   - Progressive anti-automation lockout (15 minutes after 5 consecutive failed logins).
+   - Password lifecycle: authenticated change, non-enumerating forgot-password, 15-minute single-use reset token validation.
+   - Initial administrator bootstrap (`POST /api/v1/admin/bootstrap`).
+
+2. **Multi-User & Role-Based Access Control (RBAC)**:
+   - Four distinct account tiers: `SUPER_ADMIN`, `OWNER`, `STAFF`, `CUSTOMER`.
+   - Server-side role enforcement middleware (`createRoleMiddleware`).
+   - Safeguards preventing deactivation, demotion, or deletion of the last active `SUPER_ADMIN`.
+   - Administrator console: user search, filtering by role/status, pagination, account activation/deactivation.
+
+3. **Customers & Privacy Consent**:
+   - Customer registration with consent parameters and device MAC address tracking (`/api/v1/customers`).
+   - Multi-field search (phone, name, MAC) and pagination.
+
+4. **Access Packages & Voucher Engine**:
+   - Time-based internet packages with integer minor unit pricing and duration seconds (`/api/v1/packages`).
+   - Voucher code generation with uppercase normalization, usage limits, and expiration bounds (`/api/v1/coupons`).
+   - Public customer voucher redemption validator (`POST /api/v1/coupons/validate`).
+
+5. **Payments, Counter Cash Desk & General Ledger**:
+   - `SandboxPaymentAdapter` and `ManualCashPaymentAdapter`.
+   - Replay-protected HMAC-SHA256 signed webhooks (`POST /api/v1/payments/webhooks/:provider`) with 300-second timestamp tolerance.
+   - Idempotency key protection on payment intent creation (HTTP 409 on conflict).
+   - Counter cash desk produces tamper-evident receipts (`CASH-YYYYMMDD-XXXXXX`), advances session to `payment_verified`, and posts ledger entry.
+   - Double-entry general ledger with sales, refunds, adjustments, and automated reconciliation (`GET /api/v1/payments/reconcile`).
+
+6. **Network Reality Disclosures**:
+   - Honest capability matrix: disclosures state that standard Android system hotspot mode cannot enforce per-client disconnections or traffic quotas without managed gateway hardware.
+
+---
+
+## Verified Commands & Execution
+
+### Run Full-Stack Development Server
 ```bash
 npm run dev
 ```
+Starts unified server on `http://0.0.0.0:3000`.
 
-### 3. Build for Production
-Compiles TypeScript and creates optimized static assets in `/dist`:
+### Run Test Suites
+```bash
+npm test
+```
+Executes all 96 unit, integration, PWA, and full E2E acceptance tests across 20 suites (18 server suites, 2 client suites).
+
+### TypeScript Typecheck
+```bash
+npm run lint
+```
+Executes `tsc --noEmit` across the codebase (0 errors).
+
+### Build Production Bundle
 ```bash
 npm run build
 ```
+Compiles and bundles the client application into `/dist`.
 
-### 4. Run Production Server
-Serves production assets and the `/api/health` endpoint:
+### Production Execution
 ```bash
 npm run start
 ```
 
-### 5. Type Check / Lint
-Validates TypeScript typings across the client and server codebases:
-```bash
-npm run lint
-```
-
 ---
 
-## Technical Boundary & Health Check
+## Health & Diagnostic Endpoints
 
-The backend exposes a single health verification endpoint:
-
-- **Method**: `GET`
-- **Path**: `/api/health`
-- **Response Format**: `application/json`
-- **Example Response**:
-  ```json
-  {
-    "status": "ok",
-    "service": "internet-coupon-hotspot-kernel",
-    "uptime": 42,
-    "timestamp": "2026-10-09T17:15:00.000Z",
-    "environment": "development",
-    "nodeVersion": "v22.x",
-    "androidReadiness": {
-      "capacitorCompatible": true,
-      "networkLayerSeparated": true,
-      "businessLogicDeferred": true
-    }
-  }
-  ```
-
----
-
-## Next Steps for AI Coding Agent
-
-1. **Awaiting User Action**: The user will upload the separately prepared Internet Coupon Hotspot `.ai` ZIP archive into the project root.
-2. **Authority Rule**: Once uploaded, inspect the extracted instructions. Treat them as the authoritative specification. Do not overwrite or rewrite without architectural alignment.
+- `GET /api/health`: Kernel diagnostic health monitor.
+- `GET /api/v1/health`: API subsystem capability matrix.
+- `GET /api/v1`: Root module registry.
+- `GET /api/v1/admin/overview`: System and account telemetry.
+- `GET /api/v1/admin/ai/insights`: Privacy-preserving operational AI insights.
+- `GET /manifest.webmanifest`: Progressive Web App (PWA) manifest.
