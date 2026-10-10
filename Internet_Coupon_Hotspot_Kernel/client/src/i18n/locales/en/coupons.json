@@ -18,5 +18,19 @@
   "expires": "Expires",
   "neverExpires": "Never",
   "noCoupons": "No vouchers generated yet. Create a batch above.",
-  "batchGenerated": "Successfully generated {{count}} voucher(s)."
+  "batchGenerated": "Successfully generated {{count}} voucher(s).",
+  "issueVoucherTitle": "Generate Access Voucher",
+  "linkedPackage": "Linked Package",
+  "issueVoucherBtn": "Issue Voucher",
+  "testerTitle": "Customer Voucher Redemption Tester",
+  "testerPlaceholder": "Enter voucher code (e.g. SUMMERPASS)",
+  "validateBtn": "Validate",
+  "redemptions": "Redemptions",
+  "usesCount": "{{current}} of {{max}} used",
+  "exhausted": "Exhausted",
+  "available": "Available",
+  "disabled": "Disabled",
+  "validGrants": "✓ Valid! Grants \"{{packageName}}\" ({{remaining}} redemptions left)",
+  "rejectedError": "✕ Rejected: {{error}}",
+  "couponIssuedSuccess": "Voucher issued successfully."
 }

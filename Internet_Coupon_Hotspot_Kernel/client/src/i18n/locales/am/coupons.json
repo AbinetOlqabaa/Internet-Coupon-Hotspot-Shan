@@ -18,5 +18,19 @@
   "expires": "የሚያበቃበት",
   "neverExpires": "አያበቃም",
   "noCoupons": "እስካሁን የተፈጠረ ቫውቸር የለም። ከላይ ስብስብ ያመንጩ።",
-  "batchGenerated": "{{count}} ቫውቸር(ዎች) በተሳካ ሁኔታ ተፈጥረዋል።"
+  "batchGenerated": "{{count}} ቫውቸር(ዎች) በተሳካ ሁኔታ ተፈጥረዋል።",
+  "issueVoucherTitle": "የኢንተርኔት ቫውቸር ያውጡ",
+  "linkedPackage": "የተገናኘ ጥቅል",
+  "issueVoucherBtn": "ቫውቸር አውጣ",
+  "testerTitle": "የደንበኞች ቫውቸር መሞከሪያ",
+  "testerPlaceholder": "የቫውቸር ኮድ ያስገቡ (ለምሳሌ SUMMERPASS)",
+  "validateBtn": "አረጋግጥ",
+  "redemptions": "ጥቅም ላይ የዋለበት",
+  "usesCount": "ከ{{max}} ውስጥ {{current}} ጥቅም ላይ ውሏል",
+  "exhausted": "ያለቀ",
+  "available": "ዝግጁ",
+  "disabled": "የቦዘነ",
+  "validGrants": "✓ ትክክለኛ! \"{{packageName}}\" ይሰጣል ({{remaining}} አጠቃቀም ቀርቷል)",
+  "rejectedError": "✕ ውድቅ ተደርጓል: {{error}}",
+  "couponIssuedSuccess": "ቫውቸር በተሳካ ሁኔታ ተዘጋጅቷል።"
 }

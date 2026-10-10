@@ -16,5 +16,9 @@
   "registeredAt": "Guyyaa Galmee",
   "noCustomers": "Maamilli hin argamne. Oliitti maamila haaraa galmeessaa.",
   "saveCustomer": "Odeeffannoo Maamilaa Olkaawi",
-  "customerSaved": "Odeeffannoon maamilaa milkaa'inaan olkaawameera."
+  "customerSaved": "Odeeffannoon maamilaa milkaa'inaan olkaawameera.",
+  "registerWithConsent": "Maamila Galmeessi (Waliigaltee Iccitii Waliin)",
+  "addCustomerBtn": "Maamila Dabali",
+  "thDisplayName": "Maqaa Mul'atu",
+  "customerCreatedSuccess": "Maamilli milkaa'inaan galmaa'eera."
 }

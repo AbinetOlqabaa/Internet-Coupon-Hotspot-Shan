@@ -16,5 +16,9 @@
   "registeredAt": "የተመዘገበበት ቀን",
   "noCustomers": "ምንም ደንበኛ አልተገኘም። ከላይ አዲስ ደንበኛ ይመዝግቡ።",
   "saveCustomer": "የደንበኛ መረጃ አስቀምጥ",
-  "customerSaved": "የደንበኛ መረጃ በተሳካ ሁኔታ ተቀምጧል።"
+  "customerSaved": "የደንበኛ መረጃ በተሳካ ሁኔታ ተቀምጧል።",
+  "registerWithConsent": "ደንበኛ ይመዝግቡ (ከግላዊነት ስምምነት ጋር)",
+  "addCustomerBtn": "ደንበኛ አክል",
+  "thDisplayName": "የሚታይ ስም",
+  "customerCreatedSuccess": "ደንበኛ በተሳካ ሁኔታ ተመዝግቧል።"
 }

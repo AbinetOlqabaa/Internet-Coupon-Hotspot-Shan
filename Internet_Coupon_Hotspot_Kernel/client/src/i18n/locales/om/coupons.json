@@ -18,5 +18,19 @@
   "expires": "Kan Dhumu",
   "neverExpires": "Gonkumma Hin Dhumu",
   "noCoupons": "Wawuuchariin uumame hin jiru. Oliitti tuuta haaraa uumaa.",
-  "batchGenerated": "Wawuuchariin {{count}} milkaa'inaan uumameera."
+  "batchGenerated": "Wawuuchariin {{count}} milkaa'inaan uumameera.",
+  "issueVoucherTitle": "Kuuppoonii Seensaa Baasi",
+  "linkedPackage": "Paakeejii Walqabate",
+  "issueVoucherBtn": "Kuuppoonii Baasi",
+  "testerTitle": "Qorataa Kuuppoonii Maamilaa",
+  "testerPlaceholder": "Koodii kuuppoonii galchaa (fkn SUMMERPASS)",
+  "validateBtn": "Mirkaneessi",
+  "redemptions": "Fayyadama",
+  "usesCount": "{{max}} keessaa {{current}} itti fayyadame",
+  "exhausted": "Kan Dhumate",
+  "available": "Qophii",
+  "disabled": "Kan Dhaabbate",
+  "validGrants": "✓ Sirrii! \"{{packageName}}\" kenna (fayyadama {{remaining}} hafe)",
+  "rejectedError": "✕ Kufaa Ta'eera: {{error}}",
+  "couponIssuedSuccess": "Kuuppooniin milkaa'inaan qophaa'eera."
 }

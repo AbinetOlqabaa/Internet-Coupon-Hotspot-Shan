@@ -88,5 +88,22 @@
   "notes": "Notes",
   "copy": "Copy",
   "copied": "Copied!",
-  "print": "Print"
+  "print": "Print",
+  "unassigned": "Unassigned",
+  "archived": "Archived",
+  "discrepancy": "Discrepancy",
+  "balanced": "Balanced",
+  "unbalanced": "Discrepancy Detected",
+  "settled": "Settled",
+  "never": "Never",
+  "system": "System",
+  "anonymousGuest": "Anonymous Guest",
+  "consentVerified": "Consent Verified",
+  "standard": "Standard",
+  "minutes": "Minutes",
+  "hours": "Hours",
+  "ready": "Ready",
+  "planned": "Planned",
+  "freeTier": "Free Tier",
+  "paidTier": "Paid Tier"
 }

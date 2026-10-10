@@ -88,5 +88,22 @@
   "notes": "Yaadannoowwan",
   "copy": "Garagalchi",
   "copied": "Garagalfameera!",
-  "print": "Maxxansi"
+  "print": "Maxxansi",
+  "unassigned": "Kan hin ramadamne",
+  "archived": "Kuusame",
+  "discrepancy": "Garaagarummaa",
+  "balanced": "Madaalawaa",
+  "unbalanced": "Garaagarummaan Mul'ate",
+  "settled": "Xumurame",
+  "never": "Gonkumaa",
+  "system": "Sirna",
+  "anonymousGuest": "Keessummaa Maqaa Hin Qabne",
+  "consentVerified": "Hayyami Mirkanaa'e",
+  "standard": "Idilee",
+  "minutes": "Daqiiqawwan",
+  "hours": "Sa'aatiiwwan",
+  "ready": "Qophii",
+  "planned": "Karoorfame",
+  "freeTier": "Sadarkaa Bilisaa",
+  "paidTier": "Sadarkaa Kaffaltii"
 }

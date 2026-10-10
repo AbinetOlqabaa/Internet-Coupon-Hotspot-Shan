@@ -88,5 +88,22 @@
   "notes": "ማስታወሻዎች",
   "copy": "ቅዳ",
   "copied": "ተቀድቷል!",
-  "print": "አትም"
+  "print": "አትም",
+  "unassigned": "ያልተመደበ",
+  "archived": "የተቀመጠ",
+  "discrepancy": "ልዩነት",
+  "balanced": "ሚዛናዊ",
+  "unbalanced": "ልዩነት ተገኝቷል",
+  "settled": "የተጠናቀቀ",
+  "never": "በፍጹም",
+  "system": "ሲስተም",
+  "anonymousGuest": "ስም-አልባ እንግዳ",
+  "consentVerified": "ስምምነት ተረጋግጧል",
+  "standard": "መደበኛ",
+  "minutes": "ደቂቃዎች",
+  "hours": "ሰዓታት",
+  "ready": "ዝግጁ",
+  "planned": "የታቀደ",
+  "freeTier": "ነጻ ደረጃ",
+  "paidTier": "የሚከፈልበት ደረጃ"
 }

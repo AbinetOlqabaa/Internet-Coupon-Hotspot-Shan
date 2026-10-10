@@ -16,5 +16,9 @@
   "registeredAt": "Registration Date",
   "noCustomers": "No customers found. Register new customers above.",
   "saveCustomer": "Save Customer Record",
-  "customerSaved": "Customer record saved successfully."
+  "customerSaved": "Customer record saved successfully.",
+  "registerWithConsent": "Register Customer (with Privacy Consent)",
+  "addCustomerBtn": "Add Customer",
+  "thDisplayName": "Display Name",
+  "customerCreatedSuccess": "Customer registered successfully."
 }

@@ -12,5 +12,7 @@
   "noPackages": "እስካሁን የተፈጠረ ጥቅል የለም። ከላይ የመጀመሪያውን ጥቅል ይፍጠሩ።",
   "status": "ሁኔታ",
   "activeState": "ለሽያጭ ክፍት",
-  "inactiveState": "የተዘጋ"
+  "inactiveState": "የተዘጋ",
+  "addPackageBtn": "ጥቅል አክል",
+  "packageCreatedSuccess": "የኢንተርኔት ጥቅል በተሳካ ሁኔታ ተፈጥሯል።"
 }

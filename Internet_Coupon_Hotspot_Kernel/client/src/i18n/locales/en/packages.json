@@ -12,5 +12,7 @@
   "noPackages": "No packages defined yet. Create your first offering above.",
   "status": "State",
   "activeState": "Active for Sale",
-  "inactiveState": "Archived"
+  "inactiveState": "Archived",
+  "addPackageBtn": "Add Package",
+  "packageCreatedSuccess": "Access package created successfully."
 }
