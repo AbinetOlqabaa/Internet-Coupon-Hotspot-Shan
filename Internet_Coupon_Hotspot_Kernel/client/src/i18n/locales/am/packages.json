@@ -1,0 +1,16 @@
+{
+  "title": "የኢንተርኔት ጥቅሎች ዝርዝር",
+  "subtitle": "በጊዜ የተገደቡ የኢንተርኔት ጥቅሎችን፣ ዋጋዎችን እና የፍጥነት መገለጫዎችን ያዘጋጁ።",
+  "createPackage": "የኢንተርኔት ጥቅል ፍጠር",
+  "packageName": "የጥቅሉ ስም",
+  "namePlaceholder": "ለምሳሌ፦ የ1-ሰዓት ከፍተኛ ፍጥነት",
+  "durationMinutes": "የጊዜ ቆይታ (በደቂቃዎች)",
+  "priceCents": "ዋጋ (በሳንቲም / አነስተኛ የገንዘብ አሃድ)",
+  "priceFormatted": "ዋጋ",
+  "duration": "የጊዜ ቆይታ",
+  "savePackage": "የኢንተርኔት ጥቅል አስቀምጥ",
+  "noPackages": "እስካሁን የተፈጠረ ጥቅል የለም። ከላይ የመጀመሪያውን ጥቅል ይፍጠሩ።",
+  "status": "ሁኔታ",
+  "activeState": "ለሽያጭ ክፍት",
+  "inactiveState": "የተዘጋ"
+}

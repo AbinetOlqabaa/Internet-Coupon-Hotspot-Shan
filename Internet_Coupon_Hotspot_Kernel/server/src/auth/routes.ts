@@ -95,6 +95,40 @@ export function createAuthRouter(authService: AuthService, db: RepositoryRegistr
     res.status(200).json({ owner: safeOwner });
   });
 
+  const PreferencesSchema = z.object({
+    language: z.enum(['en', 'am', 'om']).optional(),
+  });
+
+  // PATCH /api/v1/auth/preferences (Authenticated)
+  router.patch('/preferences', async (req: AuthenticatedRequest, res: Response) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
+      return;
+    }
+
+    const token = authHeader.slice(7);
+    const userId = authService.validateToken(token);
+    if (!userId) {
+      res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid or expired session' } });
+      return;
+    }
+
+    try {
+      const parsed = PreferencesSchema.parse(req.body);
+      const updated = await db.owners.update(userId, parsed);
+      if (!updated) {
+        res.status(404).json({ error: { code: 'NOT_FOUND', message: 'User not found' } });
+        return;
+      }
+      const { passwordHash: _, ...safeOwner } = updated;
+      res.status(200).json({ success: true, owner: safeOwner });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update preferences';
+      res.status(400).json({ error: { code: 'INVALID_REQUEST', message } });
+    }
+  });
+
   // POST /api/v1/auth/logout
   router.post('/logout', (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;

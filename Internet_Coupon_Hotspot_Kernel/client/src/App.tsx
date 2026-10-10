@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AuthView } from './components/AuthView.js';
 import { LogoutModal } from './components/LogoutModal.js';
 import { SessionsView } from './components/SessionsView.js';
@@ -10,6 +11,7 @@ import { AICopilotView } from './components/AICopilotView.js';
 import { NotificationsModal } from './components/NotificationsModal.js';
 import { PWAInstallButton } from './components/PWAInstallButton.js';
 import { OfflineIndicator } from './components/OfflineIndicator.js';
+import { LanguageSelector } from './i18n/index.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -21,6 +23,7 @@ interface UserProfile {
   role: 'SUPER_ADMIN' | 'OWNER' | 'STAFF' | 'CUSTOMER';
   defaultCurrency: string;
   isActive: boolean;
+  language?: string;
 }
 
 interface AdminOverviewData {
@@ -41,6 +44,7 @@ interface AdminOverviewData {
 }
 
 export function App() {
+  const { t, i18n } = useTranslation(['common', 'administration', 'dashboard']);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('hotspot_auth_token'));
   const [user, setUser] = useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -145,6 +149,9 @@ export function App() {
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((data) => {
         setUser(data.owner);
+        if (data.owner?.language) {
+          i18n.changeLanguage(data.owner.language);
+        }
       })
       .catch(() => {
         setToken(null);
@@ -239,6 +246,9 @@ export function App() {
     setToken(newToken);
     localStorage.setItem('hotspot_auth_token', newToken);
     setUser(newUser);
+    if (newUser?.language) {
+      i18n.changeLanguage(newUser.language);
+    }
     setActiveTab('overview');
   };
 
@@ -583,14 +593,14 @@ export function App() {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-section-title">{!sidebarCollapsed && 'Operations'}</div>
+          <div className="nav-section-title">{!sidebarCollapsed && t('operations')}</div>
           <button
             type="button"
             className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => { setActiveTab('overview'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">📊</span>
-            {!sidebarCollapsed && <span>Dashboard</span>}
+            {!sidebarCollapsed && <span>{t('dashboard')}</span>}
           </button>
           <button
             type="button"
@@ -598,7 +608,7 @@ export function App() {
             onClick={() => { setActiveTab('sessions'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">⏱️</span>
-            {!sidebarCollapsed && <span>Live Sessions</span>}
+            {!sidebarCollapsed && <span>{t('liveSessions')}</span>}
           </button>
           <button
             type="button"
@@ -606,7 +616,7 @@ export function App() {
             onClick={() => { setActiveTab('gateways'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">🌐</span>
-            {!sidebarCollapsed && <span>Gateways &amp; Network</span>}
+            {!sidebarCollapsed && <span>{t('gateways')}</span>}
           </button>
           <button
             type="button"
@@ -614,7 +624,7 @@ export function App() {
             onClick={() => { setActiveTab('customers'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">👥</span>
-            {!sidebarCollapsed && <span>Customers</span>}
+            {!sidebarCollapsed && <span>{t('customers')}</span>}
           </button>
           <button
             type="button"
@@ -622,7 +632,7 @@ export function App() {
             onClick={() => { setActiveTab('packages'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">📦</span>
-            {!sidebarCollapsed && <span>Access Packages</span>}
+            {!sidebarCollapsed && <span>{t('packages')}</span>}
           </button>
           <button
             type="button"
@@ -630,7 +640,7 @@ export function App() {
             onClick={() => { setActiveTab('coupons'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">🎟️</span>
-            {!sidebarCollapsed && <span>Coupons &amp; Vouchers</span>}
+            {!sidebarCollapsed && <span>{t('coupons')}</span>}
           </button>
           <button
             type="button"
@@ -638,7 +648,7 @@ export function App() {
             onClick={() => { setActiveTab('payments'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">💳</span>
-            {!sidebarCollapsed && <span>Payments &amp; Ledger</span>}
+            {!sidebarCollapsed && <span>{t('payments')}</span>}
           </button>
           <button
             type="button"
@@ -646,7 +656,7 @@ export function App() {
             onClick={() => { setActiveTab('analytics'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">📈</span>
-            {!sidebarCollapsed && <span>Analytics &amp; Reports</span>}
+            {!sidebarCollapsed && <span>{t('analytics')}</span>}
           </button>
           <button
             type="button"
@@ -654,7 +664,7 @@ export function App() {
             onClick={() => { setActiveTab('loyalty'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">⭐</span>
-            {!sidebarCollapsed && <span>Loyalty &amp; Segments</span>}
+            {!sidebarCollapsed && <span>{t('loyalty')}</span>}
           </button>
           <button
             type="button"
@@ -662,7 +672,7 @@ export function App() {
             onClick={() => { setActiveTab('portal'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">📱</span>
-            {!sidebarCollapsed && <span>Customer Portal</span>}
+            {!sidebarCollapsed && <span>{t('portal')}</span>}
           </button>
           <button
             type="button"
@@ -670,19 +680,19 @@ export function App() {
             onClick={() => { setActiveTab('ai'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">🤖</span>
-            {!sidebarCollapsed && <span>AI Copilot &amp; Providers</span>}
+            {!sidebarCollapsed && <span>{t('aiCopilot')}</span>}
           </button>
 
           {canAccessAdmin && (
             <>
-              <div className="nav-section-title">{!sidebarCollapsed && 'Administration'}</div>
+              <div className="nav-section-title">{!sidebarCollapsed && t('administration')}</div>
               <button
                 type="button"
                 className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('users'); setMobileSidebarOpen(false); }}
               >
                 <span className="nav-icon">🛡️</span>
-                {!sidebarCollapsed && <span>User Management</span>}
+                {!sidebarCollapsed && <span>{t('users')}</span>}
               </button>
               <button
                 type="button"
@@ -690,19 +700,19 @@ export function App() {
                 onClick={() => { setActiveTab('audit'); setMobileSidebarOpen(false); }}
               >
                 <span className="nav-icon">📜</span>
-                {!sidebarCollapsed && <span>Audit Trail</span>}
+                {!sidebarCollapsed && <span>{t('auditTrail')}</span>}
               </button>
             </>
           )}
 
-          <div className="nav-section-title">{!sidebarCollapsed && 'Account'}</div>
+          <div className="nav-section-title">{!sidebarCollapsed && t('account')}</div>
           <button
             type="button"
             className={`nav-item ${activeTab === 'security' ? 'active' : ''}`}
             onClick={() => { setActiveTab('security'); setMobileSidebarOpen(false); }}
           >
             <span className="nav-icon">🔒</span>
-            {!sidebarCollapsed && <span>Security &amp; Password</span>}
+            {!sidebarCollapsed && <span>{t('security')}</span>}
           </button>
         </nav>
       </aside>
@@ -726,39 +736,40 @@ export function App() {
               ☰
             </button>
             <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-              {activeTab === 'overview' && 'Operations Dashboard'}
-              {activeTab === 'sessions' && 'Live Sessions & Traffic Accounting'}
-              {activeTab === 'gateways' && 'Network Gateways & Hardware Telemetry'}
-              {activeTab === 'customers' && 'Customer Management'}
-              {activeTab === 'packages' && 'Access Packages Catalog'}
-              {activeTab === 'coupons' && 'Coupons & Vouchers Engine'}
-              {activeTab === 'payments' && 'Financial Ledger, Cash Desk & Payment Processing'}
-              {activeTab === 'analytics' && 'Analytics, Usage & Revenue Reports'}
-              {activeTab === 'loyalty' && 'Customer Loyalty & Explainable Segments'}
-              {activeTab === 'portal' && 'Customer Access Portal Simulation'}
-              {activeTab === 'users' && 'Administration • User Management'}
-              {activeTab === 'audit' && 'Security & Operational Audit Logs'}
-              {activeTab === 'ai' && 'AI Operations Copilot & Provider Registry'}
-              {activeTab === 'security' && 'Account Security & Password'}
+              {activeTab === 'overview' && t('dashboard')}
+              {activeTab === 'sessions' && t('liveSessions')}
+              {activeTab === 'gateways' && t('gateways')}
+              {activeTab === 'customers' && t('customers')}
+              {activeTab === 'packages' && t('packages')}
+              {activeTab === 'coupons' && t('coupons')}
+              {activeTab === 'payments' && t('payments')}
+              {activeTab === 'analytics' && t('analytics')}
+              {activeTab === 'loyalty' && t('loyalty')}
+              {activeTab === 'portal' && t('portal')}
+              {activeTab === 'users' && t('users')}
+              {activeTab === 'audit' && t('auditTrail')}
+              {activeTab === 'ai' && t('aiCopilot')}
+              {activeTab === 'security' && t('security')}
             </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <LanguageSelector compact token={token} apiBase={API} />
             <PWAInstallButton compact />
             <button
               type="button"
               className="btn-outline"
               style={{ padding: '0.35rem 0.65rem', fontSize: '0.85rem' }}
               onClick={() => setIsNotificationsOpen(true)}
-              title="System Notifications & Alerts"
+              title={t('alerts')}
             >
-              🔔 Alerts
+              🔔 {t('alerts')}
             </button>
             <span className={`badge ${user.role === 'SUPER_ADMIN' ? 'badge-super-admin' : user.role === 'OWNER' ? 'badge-owner' : 'badge-staff'}`}>
               {user.role}
             </span>
             <span className={`pill ${apiHealth}`} style={{ padding: '0.35rem 0.65rem' }}>
-              {apiHealth === 'connected' ? 'API Live' : 'API Offline'}
+              {apiHealth === 'connected' ? t('apiLive') : t('apiOffline')}
             </span>
             <button
               type="button"
@@ -766,7 +777,7 @@ export function App() {
               style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
               onClick={() => setIsLogoutModalOpen(true)}
             >
-              Sign Out
+              {t('signOut')}
             </button>
           </div>
         </header>
@@ -1743,6 +1754,20 @@ export function App() {
                     Update Password
                   </button>
                 </form>
+              </div>
+
+              {/* Card 3: Interface Language Preference */}
+              <div style={{ background: 'var(--color-surface)', padding: '1.5rem', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0' }}>🌐 {t('languagePreference', { ns: 'administration' })}</h3>
+                <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+                  {t('securitySubtitle', { ns: 'administration' })}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <label className="form-label">{t('selectLanguage')}</label>
+                  <div>
+                    <LanguageSelector token={token} apiBase={API} />
+                  </div>
+                </div>
               </div>
             </div>
           )}

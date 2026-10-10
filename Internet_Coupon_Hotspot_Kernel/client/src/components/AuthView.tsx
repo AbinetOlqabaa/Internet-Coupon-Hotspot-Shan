@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../i18n/index.js';
 
 interface AuthViewProps {
   apiBase: string;
@@ -8,6 +10,7 @@ interface AuthViewProps {
 type AuthMode = 'login' | 'register' | 'forgot' | 'reset' | 'bootstrap';
 
 export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
+  const { t } = useTranslation(['auth', 'common', 'validation']);
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +41,10 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
     setSuccessMessage(null);
   };
 
+  const mapErrorMessage = (errCodeOrMsg: string) => {
+    return t(errCodeOrMsg, { ns: 'validation', defaultValue: errCodeOrMsg });
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,10 +56,12 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Login failed');
+      if (!res.ok) {
+        throw new Error(data.error?.code || data.error?.message || 'INVALID_CREDENTIALS');
+      }
       onAuthSuccess(data.token, data.owner);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(mapErrorMessage(err instanceof Error ? err.message : 'INVALID_CREDENTIALS'));
     } finally {
       setLoading(false);
     }
@@ -61,7 +70,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
   const handleBootstrap = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('passwordsDoNotMatch', { ns: 'validation' }));
       return;
     }
     setLoading(true);
@@ -78,11 +87,13 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Bootstrap initialization failed');
+      if (!res.ok) {
+        throw new Error(data.error?.code || data.error?.message || 'BOOTSTRAP_FAILED');
+      }
       setIsBootstrapOpen(false);
       onAuthSuccess(data.token, data.user);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Bootstrap failed');
+      setError(mapErrorMessage(err instanceof Error ? err.message : 'BOOTSTRAP_FAILED'));
     } finally {
       setLoading(false);
     }
@@ -91,7 +102,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('passwordsDoNotMatch', { ns: 'validation' }));
       return;
     }
     setLoading(true);
@@ -103,10 +114,12 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         body: JSON.stringify({ email, password, businessName, displayName }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Registration failed');
+      if (!res.ok) {
+        throw new Error(data.error?.code || data.error?.message || 'REGISTRATION_FAILED');
+      }
       onAuthSuccess(data.token, data.owner);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(mapErrorMessage(err instanceof Error ? err.message : 'REGISTRATION_FAILED'));
     } finally {
       setLoading(false);
     }
@@ -123,13 +136,12 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      setSuccessMessage(data.message || 'Reset instructions sent.');
+      setSuccessMessage(t('resetEmailSent', { ns: 'auth' }));
       if (data.devResetToken) {
         setResetToken(data.devResetToken);
-        setSuccessMessage(`Reset token generated for testing: ${data.devResetToken}`);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Request failed');
+      setError(mapErrorMessage(err instanceof Error ? err.message : 'NETWORK_ERROR'));
     } finally {
       setLoading(false);
     }
@@ -138,7 +150,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('passwordsDoNotMatch', { ns: 'validation' }));
       return;
     }
     setLoading(true);
@@ -150,13 +162,15 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         body: JSON.stringify({ token: resetToken, newPassword: password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Password reset failed');
-      setSuccessMessage('Password reset successfully. You may now sign in.');
+      if (!res.ok) {
+        throw new Error(data.error?.code || data.error?.message || 'RESET_FAILED');
+      }
+      setSuccessMessage(t('resetSuccess', { ns: 'auth' }));
       setMode('login');
       setPassword('');
       setConfirmPassword('');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Reset failed');
+      setError(mapErrorMessage(err instanceof Error ? err.message : 'RESET_FAILED'));
     } finally {
       setLoading(false);
     }
@@ -172,26 +186,32 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
           border: '1px solid var(--color-border)',
           boxShadow: 'var(--shadow-card)',
           padding: '2rem',
+          position: 'relative',
         }}
       >
+        {/* Language Selector Top Right */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+          <LanguageSelector compact />
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div className="logo" style={{ margin: '0 auto 1rem auto' }}>◉</div>
           <small style={{ color: 'var(--color-brand-secondary)', letterSpacing: '0.08em', fontWeight: 800 }}>
-            INTERNET COUPON HOTSPOT
+            {t('appName', { ns: 'common' }).toUpperCase()}
           </small>
           <h2 style={{ margin: '0.4rem 0 0.2rem', fontSize: '1.4rem' }}>
-            {mode === 'login' && 'Sign In to Operations'}
-            {mode === 'register' && 'Register Hotspot Business'}
-            {mode === 'forgot' && 'Reset Forgotten Password'}
-            {mode === 'reset' && 'Set New Password'}
-            {mode === 'bootstrap' && 'Initialize System Administrator'}
+            {mode === 'login' && t('signIn', { ns: 'auth' })}
+            {mode === 'register' && t('createAccount', { ns: 'auth' })}
+            {mode === 'forgot' && t('forgotPassword', { ns: 'auth' })}
+            {mode === 'reset' && t('resetPassword', { ns: 'auth' })}
+            {mode === 'bootstrap' && t('bootstrapTitle', { ns: 'auth' })}
           </h2>
           <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', margin: 0 }}>
-            {mode === 'login' && 'Enter your credentials to manage packages, coupons, and access.'}
-            {mode === 'register' && 'Create your owner tenant account with full operational controls.'}
-            {mode === 'forgot' && 'Enter your account email to receive recovery instructions.'}
-            {mode === 'reset' && 'Enter the single-use token and choose your new password.'}
-            {mode === 'bootstrap' && 'First-run setup: Create the primary SuperAdmin. Closes permanently after initialization.'}
+            {mode === 'login' && t('signInDesc', { ns: 'auth' })}
+            {mode === 'register' && t('createAccountDesc', { ns: 'auth' })}
+            {mode === 'forgot' && t('forgotPasswordDesc', { ns: 'auth' })}
+            {mode === 'reset' && t('resetPasswordDesc', { ns: 'auth' })}
+            {mode === 'bootstrap' && t('bootstrapDesc', { ns: 'auth' })}
           </p>
         </div>
 
@@ -211,12 +231,12 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         {mode === 'login' && (
           <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label className="form-label" htmlFor="login-email">Email Address</label>
+              <label className="form-label" htmlFor="login-email">{t('email', { ns: 'auth' })}</label>
               <input
                 id="login-email"
                 type="email"
                 className="form-input"
-                placeholder="operator@hotspot.local"
+                placeholder={t('emailPlaceholder', { ns: 'auth' })}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -225,13 +245,13 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
 
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label className="form-label" htmlFor="login-password">Password</label>
+                <label className="form-label" htmlFor="login-password">{t('password', { ns: 'auth' })}</label>
                 <button
                   type="button"
                   onClick={() => { clearForm(); setMode('forgot'); }}
                   style={{ background: 'none', border: 'none', color: 'var(--color-brand-secondary)', fontSize: '0.75rem', cursor: 'pointer', padding: 0 }}
                 >
-                  Forgot password?
+                  {t('forgotPasswordLink', { ns: 'auth' })}
                 </button>
               </div>
               <div className="password-input-wrapper">
@@ -248,15 +268,15 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                   type="button"
                   className="password-toggle-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? t('hidePassword', { ns: 'auth' }) : t('showPassword', { ns: 'auth' })}
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? t('hidePassword', { ns: 'auth' }) : t('showPassword', { ns: 'auth' })}
                 </button>
               </div>
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
-              {loading ? 'Authenticating...' : 'Sign In'}
+              {loading ? t('loading', { ns: 'common' }) : t('signInBtn', { ns: 'auth' })}
             </button>
           </form>
         )}
@@ -265,11 +285,11 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         {mode === 'register' && (
           <form onSubmit={handleRegister}>
             <div className="form-group">
-              <label className="form-label">Business Name</label>
+              <label className="form-label">{t('businessName', { ns: 'auth' })}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Sunset Beach WiFi"
+                placeholder={t('businessNamePlaceholder', { ns: 'auth' })}
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
                 required
@@ -277,22 +297,22 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Operator Display Name</label>
+              <label className="form-label">{t('displayName', { ns: 'auth' })}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Alex Morgan"
+                placeholder={t('displayNamePlaceholder', { ns: 'auth' })}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Email Address</label>
+              <label className="form-label">{t('email', { ns: 'auth' })}</label>
               <input
                 type="email"
                 className="form-input"
-                placeholder="alex@sunsetwifi.com"
+                placeholder={t('emailPlaceholder', { ns: 'auth' })}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -300,12 +320,12 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Password (min 8 characters)</label>
+              <label className="form-label">{t('password', { ns: 'auth' })}</label>
               <div className="password-input-wrapper">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder', { ns: 'auth' })}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
@@ -316,13 +336,13 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                   className="password-toggle-btn"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? t('hidePassword', { ns: 'auth' }) : t('showPassword', { ns: 'auth' })}
                 </button>
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm Password</label>
+              <label className="form-label">{t('confirmPassword', { ns: 'auth' })}</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
@@ -335,7 +355,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <button type="submit" className="btn-secondary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
-              {loading ? 'Creating Account...' : 'Complete Registration'}
+              {loading ? t('loading', { ns: 'common' }) : t('registerBtn', { ns: 'auth' })}
             </button>
           </form>
         )}
@@ -344,11 +364,11 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         {mode === 'forgot' && (
           <form onSubmit={handleForgotPassword}>
             <div className="form-group">
-              <label className="form-label">Registered Email</label>
+              <label className="form-label">{t('email', { ns: 'auth' })}</label>
               <input
                 type="email"
                 className="form-input"
-                placeholder="operator@hotspot.local"
+                placeholder={t('emailPlaceholder', { ns: 'auth' })}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -356,7 +376,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
-              {loading ? 'Sending...' : 'Request Reset Link'}
+              {loading ? t('loading', { ns: 'common' }) : t('sendResetLink', { ns: 'auth' })}
             </button>
 
             {resetToken && (
@@ -367,7 +387,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                   onClick={() => { clearForm(); setMode('reset'); }}
                   style={{ width: '100%' }}
                 >
-                  Proceed to Reset Password
+                  {t('resetPassword', { ns: 'auth' })}
                 </button>
               </div>
             )}
@@ -378,11 +398,11 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         {mode === 'reset' && (
           <form onSubmit={handleResetPassword}>
             <div className="form-group">
-              <label className="form-label">Reset Token</label>
+              <label className="form-label">{t('resetToken', { ns: 'auth' })}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="64-character token"
+                placeholder="token..."
                 value={resetToken}
                 onChange={(e) => setResetToken(e.target.value)}
                 required
@@ -390,11 +410,11 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">New Password (min 8 characters)</label>
+              <label className="form-label">{t('newPassword', { ns: 'auth' })}</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
-                placeholder="••••••••"
+                placeholder={t('passwordPlaceholder', { ns: 'auth' })}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={8}
@@ -403,7 +423,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm New Password</label>
+              <label className="form-label">{t('confirmPassword', { ns: 'auth' })}</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
@@ -416,7 +436,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
-              {loading ? 'Updating Password...' : 'Save New Password'}
+              {loading ? t('loading', { ns: 'common' }) : t('resetPasswordBtn', { ns: 'auth' })}
             </button>
           </form>
         )}
@@ -425,11 +445,11 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
         {mode === 'bootstrap' && (
           <form onSubmit={handleBootstrap}>
             <div style={{ background: '#eff6ff', color: '#1e40af', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', marginBottom: '1rem', border: '1px solid #dbeafe' }}>
-              <strong>First-Run Mode:</strong> No administrator account exists yet. Create your primary SuperAdmin credentials to initialize the platform.
+              <strong>First-Run Mode:</strong> {t('bootstrapDesc', { ns: 'auth' })}
             </div>
 
             <div className="form-group">
-              <label className="form-label">SuperAdmin Email Address</label>
+              <label className="form-label">{t('email', { ns: 'auth' })}</label>
               <input
                 type="email"
                 className="form-input"
@@ -441,23 +461,23 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Administrator Display Name</label>
+              <label className="form-label">{t('displayName', { ns: 'auth' })}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="System Administrator"
+                placeholder={t('displayNamePlaceholder', { ns: 'auth' })}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Password (min 8 characters)</label>
+              <label className="form-label">{t('password', { ns: 'auth' })}</label>
               <div className="password-input-wrapper">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
-                  placeholder="••••••••"
+                  placeholder={t('passwordPlaceholder', { ns: 'auth' })}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={8}
@@ -468,13 +488,13 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                   className="password-toggle-btn"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? 'Hide' : 'Show'}
+                  {showPassword ? t('hidePassword', { ns: 'auth' }) : t('showPassword', { ns: 'auth' })}
                 </button>
               </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Confirm Password</label>
+              <label className="form-label">{t('confirmPassword', { ns: 'auth' })}</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="form-input"
@@ -487,18 +507,18 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Bootstrap Token (if set in .env)</label>
+              <label className="form-label">{t('bootstrapToken', { ns: 'auth' })}</label>
               <input
                 type="password"
                 className="form-input"
-                placeholder="Optional environment token"
+                placeholder={t('bootstrapTokenPlaceholder', { ns: 'auth' })}
                 value={bootstrapToken}
                 onChange={(e) => setBootstrapToken(e.target.value)}
               />
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
-              {loading ? 'Initializing...' : 'Initialize SuperAdmin'}
+              {loading ? t('loading', { ns: 'common' }) : t('bootstrapBtn', { ns: 'auth' })}
             </button>
           </form>
         )}
@@ -512,7 +532,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                 onClick={() => { clearForm(); setMode('register'); }}
                 style={{ background: 'none', border: 'none', color: 'var(--color-brand-secondary)', cursor: 'pointer', fontWeight: 600 }}
               >
-                Register as Owner
+                {t('needAccount', { ns: 'auth' })}
               </button>
               {isBootstrapOpen && (
                 <button
@@ -520,7 +540,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
                   onClick={() => { clearForm(); setMode('bootstrap'); }}
                   style={{ background: 'none', border: 'none', color: 'var(--color-warning, #d97706)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
                 >
-                  ⚙ First-Run Setup: Initialize SuperAdmin
+                  ⚙ {t('bootstrapTitle', { ns: 'auth' })}
                 </button>
               )}
             </div>
@@ -530,7 +550,7 @@ export function AuthView({ apiBase, onAuthSuccess }: AuthViewProps) {
               onClick={() => { clearForm(); setMode('login'); }}
               style={{ background: 'none', border: 'none', color: 'var(--color-brand-secondary)', cursor: 'pointer', fontWeight: 600 }}
             >
-              ← Back to Sign In
+              ← {t('backToSignIn', { ns: 'auth' })}
             </button>
           )}
         </div>

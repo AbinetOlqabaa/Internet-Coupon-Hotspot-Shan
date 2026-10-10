@@ -1,0 +1,22 @@
+{
+  "title": "Coupons & Vouchers Engine",
+  "subtitle": "Issue cryptographically collision-resistant voucher codes, manage usage limits, and test redemption.",
+  "generateBatch": "Generate Voucher Batch",
+  "codeLabel": "Voucher Code",
+  "codePlaceholder": "e.g. PASS_1HR_XYZ (Leave blank to auto-generate)",
+  "packageLabel": "Target Access Package",
+  "selectPackage": "-- Select Package --",
+  "maxUses": "Maximum Uses Per Code",
+  "generateBtn": "Generate & Store Vouchers",
+  "testVoucher": "Test Voucher Validation (Public Endpoint)",
+  "testPlaceholder": "Enter code to test redemption eligibility",
+  "testBtn": "Validate Code",
+  "validResult": "Valid for Redemption",
+  "invalidResult": "Invalid or Expired",
+  "issuedCoupons": "Issued Vouchers",
+  "uses": "Uses",
+  "expires": "Expires",
+  "neverExpires": "Never",
+  "noCoupons": "No vouchers generated yet. Create a batch above.",
+  "batchGenerated": "Successfully generated {{count}} voucher(s)."
+}

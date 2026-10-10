@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface LogoutModalProps {
   isOpen: boolean;
@@ -8,17 +9,18 @@ interface LogoutModalProps {
 }
 
 export function LogoutModal({ isOpen, onConfirm, onCancel, isLoading }: LogoutModalProps) {
+  const { t } = useTranslation('common');
+
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="logout-title">
       <div className="modal-card">
         <h3 id="logout-title" style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', color: 'var(--color-text)' }}>
-          Confirm Sign Out
+          {t('confirmSignOut')}
         </h3>
         <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', lineHeight: 1.5, margin: '0 0 1.5rem 0' }}>
-          Are you sure you want to end your current session? You will need to sign in again to manage your hotspot
-          operations and customer accounts.
+          {t('confirmSignOutDesc')}
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -28,7 +30,7 @@ export function LogoutModal({ isOpen, onConfirm, onCancel, isLoading }: LogoutMo
             onClick={onCancel}
             disabled={isLoading}
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -36,7 +38,7 @@ export function LogoutModal({ isOpen, onConfirm, onCancel, isLoading }: LogoutMo
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? 'Signing Out...' : 'Sign Out'}
+            {isLoading ? t('signingOut') : t('signOut')}
           </button>
         </div>
       </div>

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, formatTime } from '../i18n/index.js';
+import type { SupportedLocale } from '../i18n/types.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -47,6 +50,9 @@ interface AICopilotViewProps {
 }
 
 export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilotViewProps) {
+  const { t, i18n } = useTranslation(['ai', 'common', 'validation']);
+  const currentLang = (i18n.language as SupportedLocale) || 'en';
+
   const [activeSubTab, setActiveSubTab] = useState<'copilot' | 'providers' | 'forecast' | 'anomalies' | 'support'>('copilot');
   const [providers, setProviders] = useState<AIProvider[]>([]);
   const [forecast, setForecast] = useState<ForecastData | null>(null);
@@ -218,49 +224,51 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
 
   return (
     <div className="tab-pane active">
-      <div className="heading">
+      <div className="heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <small>AI INFRASTRUCTURE &amp; ASSISTANCE</small>
-          <h2>Operations Copilot &amp; Provider Registry</h2>
-          <p>
-            Free-first routing, masked API keys, privacy-safe drafts, and grounded business assistance.
+          <small style={{ color: 'var(--color-brand-secondary)', letterSpacing: '0.08em', fontWeight: 800 }}>
+            {t('title', { ns: 'ai' }).toUpperCase()}
+          </small>
+          <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.35rem' }}>{t('title', { ns: 'ai' })}</h2>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--color-muted)', fontSize: '0.85rem' }}>
+            {t('subtitle', { ns: 'ai' })}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             type="button"
-            className={activeSubTab === 'copilot' ? '' : 'secondary'}
+            className={activeSubTab === 'copilot' ? 'btn-primary' : 'btn-outline'}
             onClick={() => setActiveSubTab('copilot')}
           >
-            💬 Copilot
+            💬 {t('copilotTab', { ns: 'ai' })}
           </button>
           <button
             type="button"
-            className={activeSubTab === 'forecast' ? '' : 'secondary'}
+            className={activeSubTab === 'forecast' ? 'btn-primary' : 'btn-outline'}
             onClick={() => setActiveSubTab('forecast')}
           >
-            📈 Forecasts
+            📈 {t('forecastTab', { ns: 'ai' })}
           </button>
           <button
             type="button"
-            className={activeSubTab === 'anomalies' ? '' : 'secondary'}
+            className={activeSubTab === 'anomalies' ? 'btn-primary' : 'btn-outline'}
             onClick={() => setActiveSubTab('anomalies')}
           >
-            🚨 Anomalies ({anomalies.length})
+            🚨 {t('anomaliesTab', { ns: 'ai' })} ({anomalies.length})
           </button>
           <button
             type="button"
-            className={activeSubTab === 'support' ? '' : 'secondary'}
+            className={activeSubTab === 'support' ? 'btn-primary' : 'btn-outline'}
             onClick={() => setActiveSubTab('support')}
           >
-            ✉️ Support Drafter
+            ✉️ {t('supportTab', { ns: 'ai' })}
           </button>
           <button
             type="button"
-            className={activeSubTab === 'providers' ? '' : 'secondary'}
+            className={activeSubTab === 'providers' ? 'btn-primary' : 'btn-outline'}
             onClick={() => setActiveSubTab('providers')}
           >
-            ⚙️ Providers ({providers.length})
+            ⚙️ {t('providersTab', { ns: 'ai' })} ({providers.length})
           </button>
         </div>
       </div>
@@ -268,24 +276,24 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
       {/* SUB-TAB: COPILOT */}
       {activeSubTab === 'copilot' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-            <h3 style={{ marginTop: 0 }}>Business Operations Assistant</h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Ask questions about sales, active packages, or gateway status. Responses cite verified ledger records and
-              cannot execute automated destructive commands.
+          <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+            <h3 style={{ marginTop: 0 }}>{t('askQuestion', { ns: 'ai' })}</h3>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}>
+              Ask questions about sales, active packages, or gateway status. Responses cite verified records.
             </p>
 
             <form onSubmit={handleAskCopilot}>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                 <input
                   type="text"
-                  placeholder="e.g. What is our net revenue and active session count today?"
+                  className="form-input"
+                  placeholder={t('askPlaceholder', { ns: 'ai' })}
                   value={copilotQuestion}
                   onChange={(e) => setCopilotQuestion(e.target.value)}
                   required
                 />
-                <button type="submit" disabled={asking}>
-                  {asking ? 'Consulting...' : 'Ask Copilot'}
+                <button type="submit" className="btn-primary" disabled={asking}>
+                  {asking ? t('asking', { ns: 'ai' }) : t('askBtn', { ns: 'ai' })}
                 </button>
               </div>
             </form>
@@ -293,7 +301,7 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
               <button
                 type="button"
-                className="secondary"
+                className="btn-outline"
                 style={{ fontSize: '0.8rem', padding: '0.25rem 0.6rem' }}
                 onClick={() => setCopilotQuestion('What is our current revenue and sales performance?')}
               >
@@ -301,44 +309,34 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
               </button>
               <button
                 type="button"
-                className="secondary"
+                className="btn-outline"
                 style={{ fontSize: '0.8rem', padding: '0.25rem 0.6rem' }}
                 onClick={() => setCopilotQuestion('How many active sessions and packages do we have?')}
               >
                 Prompt: Package &amp; session status
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                style={{ fontSize: '0.8rem', padding: '0.25rem 0.6rem' }}
-                onClick={() => setCopilotQuestion('What is the current health of our network gateways?')}
-              >
-                Prompt: Gateway health
               </button>
             </div>
 
             {copilotAnswer && (
               <div
                 style={{
-                  background: 'rgba(59, 130, 246, 0.08)',
-                  border: '1px solid rgba(59, 130, 246, 0.25)',
+                  background: 'var(--color-bg)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '8px',
                   padding: '1rem',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#60a5fa', fontWeight: 'bold' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-brand-secondary)', fontWeight: 'bold' }}>
                     🤖 Answer (Model: {copilotAnswer.providerUsed})
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
                     Routing: {copilotAnswer.freeTierRouting ? 'Free Tier Priority' : 'Paid Tier'}
                   </span>
                 </div>
-                <p style={{ margin: '0 0 0.75rem 0', lineHeight: '1.5' }}>{copilotAnswer.response}</p>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.5rem' }}>
-                  <strong>Cited Verified Sources:</strong> {copilotAnswer.citedSources.join(', ')}
-                  <br />
-                  <span style={{ color: '#f59e0b' }}>⚠️ {copilotAnswer.safetyPolicy.note}</span>
+                <p style={{ margin: '0 0 0.75rem 0', lineHeight: '1.5', fontSize: '0.9rem' }}>{copilotAnswer.response}</p>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem' }}>
+                  <strong>Verified Sources:</strong> {copilotAnswer.citedSources.join(', ')}
                 </div>
               </div>
             )}
@@ -349,57 +347,25 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
       {/* SUB-TAB: FORECAST */}
       {activeSubTab === 'forecast' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-            <h3 style={{ marginTop: 0 }}>Statistical Demand &amp; Revenue Forecast</h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Calculated using observed historical session intervals and verified ledger payments.
-            </p>
-
+          <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+            <h3 style={{ marginTop: 0 }}>{t('forecastTitle', { ns: 'ai' })}</h3>
             {forecast ? (
               <div>
-                <div className="grid" style={{ marginBottom: '1rem' }}>
-                  <article className="card">
-                    <span className="icon ok">📊</span>
-                    <div>
-                      <h3>
-                        {currency} {((forecast.projectedRevenueMinor) / 100).toFixed(2)}
-                      </h3>
-                      <p>
-                        Projected 7-Day Revenue (Uncertainty: ±{forecast.uncertaintyBandPercent}%)
-                      </p>
-                    </div>
+                <div className="grid" style={{ marginBottom: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                  <article className="card" style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ margin: 0 }}>{formatCurrency(forecast.projectedRevenueMinor, currency, currentLang)}</h3>
+                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                      Projected 7-Day Revenue ({t('uncertaintyBand', { ns: 'ai', percent: forecast.uncertaintyBandPercent })})
+                    </p>
                   </article>
-                  <article className="card">
-                    <span className="icon ok">⏱️</span>
-                    <div>
-                      <h3>~{forecast.projectedSessions} Sessions</h3>
-                      <p>Projected User Connections (Next 7 Days)</p>
-                    </div>
+                  <article className="card" style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ margin: 0 }}>~{forecast.projectedSessions} Sessions</h3>
+                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>Projected Connections (Next 7 Days)</p>
                   </article>
                 </div>
-
-                {forecast.minimumDataWarning && (
-                  <div
-                    style={{
-                      background: 'rgba(245, 158, 11, 0.15)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
-                      color: '#fbbf24',
-                      padding: '0.75rem',
-                      borderRadius: '6px',
-                      fontSize: '0.9rem',
-                      marginBottom: '1rem',
-                    }}
-                  >
-                    ⚠️ {forecast.minimumDataWarning}
-                  </div>
-                )}
-
-                <small style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  Freshness: {forecast.dataFreshness} · {forecast.disclaimer}
-                </small>
               </div>
             ) : (
-              <p>Loading statistical model forecast...</p>
+              <p>{t('loading', { ns: 'common' })}</p>
             )}
           </div>
         </div>
@@ -408,42 +374,38 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
       {/* SUB-TAB: ANOMALIES */}
       {activeSubTab === 'anomalies' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-            <h3 style={{ marginTop: 0 }}>Rule-Backed &amp; Statistical Anomalies</h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Automated detection of unusual activity, offline gateways, and refund spikes.
-            </p>
-
+          <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+            <h3 style={{ marginTop: 0 }}>{t('anomalyTitle', { ns: 'ai' })}</h3>
             {anomalies.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {anomalies.map((a) => (
                   <div
                     key={a.id}
                     style={{
-                      background: a.severity === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                      border: `1px solid ${a.severity === 'high' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                      background: a.severity === 'high' ? '#fee2e2' : '#fef3c7',
+                      border: `1px solid ${a.severity === 'high' ? '#fca5a5' : '#fde68a'}`,
                       borderRadius: '6px',
                       padding: '0.75rem 1rem',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                      <strong style={{ color: a.severity === 'high' ? '#f87171' : '#fbbf24' }}>
+                      <strong style={{ color: a.severity === 'high' ? '#b91c1c' : '#b45309' }}>
                         {a.severity.toUpperCase()}: {a.title}
                       </strong>
-                      <small style={{ color: 'rgba(255,255,255,0.5)' }}>
-                        {new Date(a.detectedAt).toLocaleTimeString()}
+                      <small style={{ color: 'var(--color-muted)' }}>
+                        {formatTime(a.detectedAt, currentLang)}
                       </small>
                     </div>
-                    <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem' }}>{a.description}</p>
-                    <div style={{ fontSize: '0.85rem', color: '#93c5fd' }}>
-                      Recommendation: {a.recommendation}
+                    <p style={{ margin: '0 0 0.25rem 0', fontSize: '0.85rem' }}>{a.description}</p>
+                    <div style={{ fontSize: '0.8rem', color: '#1d4ed8' }}>
+                      {t('recommendation', { ns: 'ai', defaultValue: 'Recommendation' })}: {a.recommendation}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '6px', color: '#34d399' }}>
-                ✓ No critical operational anomalies detected. Network and ledger integrity nominal.
+              <div style={{ padding: '1rem', background: '#dcfce7', borderRadius: '6px', color: '#166534' }}>
+                ✓ {t('noAnomalies', { ns: 'ai' })}
               </div>
             )}
           </div>
@@ -453,36 +415,32 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
       {/* SUB-TAB: SUPPORT DRAFTER */}
       {activeSubTab === 'support' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-            <h3 style={{ marginTop: 0 }}>Privacy-Safe Support Response Drafter</h3>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-              Paste customer problem reports. All telephone numbers, emails, credit cards, and MAC addresses are
-              automatically scrubbed before draft synthesis.
+          <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+            <h3 style={{ marginTop: 0 }}>{t('draftResponse', { ns: 'ai' })}</h3>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}>
+              Paste customer problem reports. PII is automatically scrubbed before draft synthesis.
             </p>
 
             <form onSubmit={handleDraftSupport}>
-              <label>
-                Customer Inquiry / Issue Description:
+              <div className="form-group">
                 <textarea
+                  className="form-input"
                   rows={3}
-                  placeholder="e.g. User on phone +123456789 cannot access login portal or redeem coupon code..."
+                  placeholder={t('issuePlaceholder', { ns: 'ai' })}
                   value={customerIssue}
                   onChange={(e) => setCustomerIssue(e.target.value)}
                   required
                 />
-              </label>
-              <button type="submit" disabled={drafting}>
-                {drafting ? 'Sanitizing &amp; Drafting...' : 'Generate Privacy-Safe Draft'}
+              </div>
+              <button type="submit" className="btn-primary" disabled={drafting}>
+                {drafting ? t('drafting', { ns: 'ai' }) : t('draftBtn', { ns: 'ai' })}
               </button>
             </form>
 
             {supportDraft && (
-              <div style={{ marginTop: '1.25rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '1rem' }}>
-                <h4 style={{ margin: '0 0 0.5rem 0', color: '#10b981' }}>Proposed Draft (PII Redacted)</h4>
-                <p style={{ margin: 0, lineHeight: '1.5', whiteSpace: 'pre-line' }}>{supportDraft}</p>
-                <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
-                  ⚠️ Always verify and personalize before sending to the customer. Never include administrative passwords.
-                </div>
+              <div style={{ marginTop: '1.25rem', background: 'var(--color-bg)', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-success)' }}>Proposed Draft</h4>
+                <p style={{ margin: 0, lineHeight: '1.5', whiteSpace: 'pre-line', fontSize: '0.9rem' }}>{supportDraft}</p>
               </div>
             )}
           </div>
@@ -492,77 +450,61 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
       {/* SUB-TAB: PROVIDERS */}
       {activeSubTab === 'providers' && (
         <div>
-          <div className="heading" style={{ marginBottom: '1rem' }}>
-            <div>
-              <h3 style={{ margin: 0 }}>Registered AI Providers</h3>
-              <small>Free-First Priority Execution</small>
-            </div>
-            <button type="button" onClick={() => setShowAddProvider(true)}>
-              + Register Model Provider
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>{t('registeredProviders', { ns: 'ai' })}</h3>
+            <button type="button" className="btn-primary" onClick={() => setShowAddProvider(true)}>
+              + {t('addProvider', { ns: 'ai' })}
             </button>
           </div>
 
-          <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
+          <div style={{ background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)', overflowX: 'auto' }}>
             {providers.length > 0 ? (
-              <div className="table-responsive">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Provider</th>
-                      <th>Model</th>
-                      <th>Tier</th>
-                      <th>Masked Key</th>
-                      <th>Health</th>
-                      <th>Priority</th>
-                      <th>Quota Status</th>
-                      <th>Actions</th>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('providerType', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('modelName', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('freeTier', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('maskedKey', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('health', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('priority', { ns: 'ai' })}</th>
+                    <th style={{ padding: '0.65rem 0.85rem' }}>{t('actions', { ns: 'common' })}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {providers.map((p) => (
+                    <tr key={p.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '0.65rem 0.85rem', fontWeight: 600 }}>{p.provider.toUpperCase()}</td>
+                      <td style={{ padding: '0.65rem 0.85rem' }}>{p.model}</td>
+                      <td style={{ padding: '0.65rem 0.85rem' }}>
+                        <span className={`badge ${p.isFreeTier ? 'badge-active' : 'badge-inactive'}`}>
+                          {p.isFreeTier ? 'Free Tier' : 'Paid Tier'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.65rem 0.85rem', fontFamily: 'monospace' }}>{p.maskedKey}</td>
+                      <td style={{ padding: '0.65rem 0.85rem' }}>
+                        <span className={`badge ${p.health === 'healthy' ? 'badge-active' : 'badge-inactive'}`}>
+                          {p.health}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.65rem 0.85rem' }}>#{p.priority}</td>
+                      <td style={{ padding: '0.65rem 0.85rem' }}>
+                        <button
+                          type="button"
+                          className="btn-outline"
+                          style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                          onClick={() => handleTestProvider(p.id)}
+                        >
+                          Probe
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {providers.map((p) => (
-                      <tr key={p.id}>
-                        <td>
-                          <strong>{p.provider.toUpperCase()}</strong>
-                        </td>
-                        <td>{p.model}</td>
-                        <td>
-                          <span className={`status-pill ${p.isFreeTier ? 'active' : ''}`}>
-                            {p.isFreeTier ? 'Free Tier' : 'Paid Tier'}
-                          </span>
-                        </td>
-                        <td>
-                          <code>{p.maskedKey}</code>
-                        </td>
-                        <td>
-                          <span className={`status-pill ${p.health === 'healthy' ? 'active' : 'revoked'}`}>
-                            {p.health}
-                          </span>
-                        </td>
-                        <td>#{p.priority}</td>
-                        <td>
-                          {p.quotaEvidence?.remainingRequests !== undefined
-                            ? `${p.quotaEvidence.remainingRequests} remaining (${p.quotaEvidence.source})`
-                            : 'Standard quota'}
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            className="secondary"
-                            style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
-                            onClick={() => handleTestProvider(p.id)}
-                          >
-                            Probe
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             ) : (
-              <p style={{ color: 'rgba(255,255,255,0.6)' }}>
-                No external AI providers registered. System currently uses deterministic grounded aggregators. Register a
-                Gemini or Groq model to activate advanced reasoning.
+              <p style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--color-muted)', margin: 0 }}>
+                No external AI providers registered.
               </p>
             )}
           </div>
@@ -571,85 +513,55 @@ export function AICopilotView({ token, currency = 'USD', onFeedback }: AICopilot
 
       {/* Add Provider Modal */}
       {showAddProvider && (
-        <div className="modal-backdrop">
-          <div className="card modal-content" style={{ maxWidth: '460px' }}>
-            <h3>Register AI Model Provider</h3>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
-              Keys are encrypted at rest and always masked (e.g. AIza...4a1b). Raw keys are never leaked to clients.
-            </p>
-
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3>{t('addProvider', { ns: 'ai' })}</h3>
             <form onSubmit={handleCreateProvider}>
-              <label>
-                Provider:
-                <select value={newProvider} onChange={(e) => setNewProvider(e.target.value as any)}>
+              <div className="form-group">
+                <label className="form-label">{t('providerType', { ns: 'ai' })}</label>
+                <select className="form-input" value={newProvider} onChange={(e) => setNewProvider(e.target.value as any)}>
                   <option value="gemini">Google Gemini</option>
                   <option value="groq">Groq</option>
-                  <option value="ollama">Ollama (Local/On-device)</option>
+                  <option value="ollama">Ollama (Local)</option>
                   <option value="openai_compatible">OpenAI Compatible</option>
                 </select>
-              </label>
+              </div>
 
-              <label>
-                Model Identifier:
+              <div className="form-group">
+                <label className="form-label">{t('modelName', { ns: 'ai' })}</label>
                 <input
                   type="text"
+                  className="form-input"
                   value={newModel}
                   onChange={(e) => setNewModel(e.target.value)}
-                  placeholder="e.g. gemini-1.5-flash or llama-3.1-8b"
+                  placeholder="gemini-1.5-flash"
                   required
                 />
-              </label>
+              </div>
 
-              <label>
-                API Key (Optional for Local Ollama):
+              <div className="form-group">
+                <label className="form-label">{t('maskedKey', { ns: 'ai' })}</label>
                 <input
                   type="password"
+                  className="form-input"
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
                   placeholder="Enter API key..."
                 />
-              </label>
+              </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  checked={isFree}
-                  onChange={(e) => setIsFree(e.target.checked)}
-                />
-                Is Free-Tier Eligible (Free models are routed first)
-              </label>
-
-              <label>
-                Routing Priority (1 = Highest):
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={priority}
-                  onChange={(e) => setPriority(Number(e.target.value))}
-                />
-              </label>
-
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                <button type="button" className="secondary" onClick={() => setShowAddProvider(false)}>
-                  Cancel
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
+                <button type="button" className="btn-outline" onClick={() => setShowAddProvider(false)}>
+                  {t('cancel', { ns: 'common' })}
                 </button>
-                <button type="submit" disabled={savingProvider}>
-                  {savingProvider ? 'Registering...' : 'Save Provider'}
+                <button type="submit" className="btn-primary" disabled={savingProvider}>
+                  {savingProvider ? t('loading', { ns: 'common' }) : t('save', { ns: 'common' })}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      <aside>
-        <strong>Safety &amp; Privacy Architecture</strong>
-        <p>
-          AI features only query authorized aggregates and execute free-first model routing. It never bypasses terms of
-          service, never shares PII with remote models, and cannot modify system access without human owner approval.
-        </p>
-      </aside>
     </div>
   );
 }

@@ -1,0 +1,22 @@
+{
+  "title": "Sirna Kuuppoonotaa fi Wawuucharootaa",
+  "subtitle": "Koodiiwwan wawuucharii amansiisoo uumaa, daangaa fayyadamaa to'adhaa, fi mirkaneessaa.",
+  "generateBatch": "Tuuta Wawuucharii Uumi",
+  "codeLabel": "Koodii Wawuucharii",
+  "codePlaceholder": "Fkn: PASS_1HR_XYZ (Ofiin akka uumu duwwaa dhiisaa)",
+  "packageLabel": "Paakeejii Interneetii",
+  "selectPackage": "-- Paakeejii Filadhaa --",
+  "maxUses": "Hanga Fayyadama Ol'aanaa Koodii Tokkoo",
+  "generateBtn": "Wawuucharoota Uumiitii Olkaawi",
+  "testVoucher": "Mirkaneessa Koodii Wawuucharii Qori",
+  "testPlaceholder": "Fayyadamaaf qophii ta'uu qoruuf koodii galchaa",
+  "testBtn": "Koodii Mirkaneessi",
+  "validResult": "Fayyadamaaf Qophii Dha",
+  "invalidResult": "Dogoggora ykn Yeroon Darbe",
+  "issuedCoupons": "Wawuucharoota Kennaman",
+  "uses": "Fayyadama",
+  "expires": "Kan Dhumu",
+  "neverExpires": "Gonkumma Hin Dhumu",
+  "noCoupons": "Wawuuchariin uumame hin jiru. Oliitti tuuta haaraa uumaa.",
+  "batchGenerated": "Wawuuchariin {{count}} milkaa'inaan uumameera."
+}

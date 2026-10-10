@@ -1,0 +1,16 @@
+{
+  "title": "Tarree Paakeejiiwwan Interneetii",
+  "subtitle": "Paakeejiiwwan yeroon murtaa'an, gatiiwwan, fi saffisa interneetii murteessaa.",
+  "createPackage": "Paakeejii Interneetii Uumi",
+  "packageName": "Maqaa Paakeejii",
+  "namePlaceholder": "Fkn: Sa'aatii 1 Saffisa Ol'aanaa",
+  "durationMinutes": "Turtii (Daqiiqaa)",
+  "priceCents": "Gatii (Saantima)",
+  "priceFormatted": "Gatii",
+  "duration": "Turtii",
+  "savePackage": "Paakeejii Olkaawi",
+  "noPackages": "Paakeejiin uumame hin jiru. Oliitti paakeejii haaraa uumaa.",
+  "status": "Haala",
+  "activeState": "Gurguraaf Kan Qophaa'e",
+  "inactiveState": "Kan Cufame"
+}

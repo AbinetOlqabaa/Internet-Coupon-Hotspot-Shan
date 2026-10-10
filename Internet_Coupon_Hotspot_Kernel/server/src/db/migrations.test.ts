@@ -15,6 +15,7 @@ describe('Database Schema & Migration Sequence Integrity', () => {
     expect(files[0]).toBe('001_initial_schema.sql');
     expect(files[1]).toBe('002_user_management_and_roles.sql');
     expect(files[2]).toBe('003_notifications_loyalty_and_ai.sql');
+    expect(files[3]).toBe('004_user_language_preference.sql');
   });
 
   it('validates 001_initial_schema.sql defines core tables and constraints', () => {
@@ -48,5 +49,10 @@ describe('Database Schema & Migration Sequence Integrity', () => {
     expect(content).toContain('CREATE TABLE IF NOT EXISTS ai_providers');
     expect(content).toContain('idx_notifications_owner_status');
     expect(content).toContain('idx_ai_providers_owner_prio');
+  });
+
+  it('validates 004_user_language_preference.sql defines language column on owners', () => {
+    const content = fs.readFileSync(path.join(migrationsDir, '004_user_language_preference.sql'), 'utf-8');
+    expect(content).toContain('ALTER TABLE owners ADD COLUMN IF NOT EXISTS language');
   });
 });

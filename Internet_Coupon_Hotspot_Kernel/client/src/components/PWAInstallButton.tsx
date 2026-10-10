@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePWAInstall } from './usePWAInstall.js';
 
 interface PWAInstallButtonProps {
@@ -9,6 +10,7 @@ interface PWAInstallButtonProps {
 export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = '', compact = false }) => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const { t } = useTranslation('common');
 
   // If running in standalone PWA mode already, suppress button
   if (isInstalled) {
@@ -34,12 +36,12 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = 
           fontWeight: 600,
           cursor: 'pointer',
         }}
-        title="Install Hotspot App on your device"
+        title={t('installHotspotApp')}
       >
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
-        <span>{compact ? 'Install App' : 'Install Hotspot App'}</span>
+        <span>{compact ? t('installApp') : t('installHotspotApp')}</span>
       </button>
     );
   }
@@ -64,12 +66,12 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = 
             fontWeight: 500,
             cursor: 'pointer',
           }}
-          title="Install on iPhone / iPad"
+          title={t('installOnIos')}
         >
           <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
-          <span>Install on iOS</span>
+          <span>{t('installOnIos')}</span>
         </button>
 
         {showIOSGuide && (
@@ -99,12 +101,10 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = 
               }}
             >
               <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1.15rem', color: '#38bdf8' }}>
-                Install on iPhone &amp; iPad
+                {t('installOnIosTitle')}
               </h3>
-              <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#94a3b8', lineHeight: 1.5 }}>
-                1. Tap the <strong style={{ color: '#fff' }}>Share</strong> button in the Safari bottom toolbar.<br />
-                2. Scroll down and tap <strong style={{ color: '#fff' }}>Add to Home Screen</strong>.<br />
-                3. Tap <strong style={{ color: '#fff' }}>Add</strong> in the top right to launch full-screen.
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#94a3b8', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                {t('installOnIosDesc')}
               </p>
               <button
                 onClick={() => setShowIOSGuide(false)}
@@ -119,7 +119,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ className = 
                   cursor: 'pointer',
                 }}
               >
-                Close
+                {t('close')}
               </button>
             </div>
           </div>

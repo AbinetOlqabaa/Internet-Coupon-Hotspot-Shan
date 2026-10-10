@@ -1,0 +1,16 @@
+{
+  "title": "Access Packages Catalog",
+  "subtitle": "Define time-based internet access offerings, minor-unit prices, and bandwidth profiles.",
+  "createPackage": "Create Access Package",
+  "packageName": "Package Name",
+  "namePlaceholder": "e.g. 1-Hour High Speed",
+  "durationMinutes": "Duration (Minutes)",
+  "priceCents": "Price (Minor Currency Units / Cents)",
+  "priceFormatted": "Price",
+  "duration": "Duration",
+  "savePackage": "Save Access Package",
+  "noPackages": "No packages defined yet. Create your first offering above.",
+  "status": "State",
+  "activeState": "Active for Sale",
+  "inactiveState": "Archived"
+}

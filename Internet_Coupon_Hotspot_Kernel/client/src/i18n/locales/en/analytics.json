@@ -1,0 +1,19 @@
+{
+  "title": "Analytics, Usage & Revenue Reports",
+  "subtitle": "Authoritative ledger reporting, time-series income metrics, and customer retention insights.",
+  "totalGross": "Gross Revenue",
+  "totalRefunds": "Total Refunds",
+  "netBalance": "Net Balance",
+  "deliveredHours": "Delivered Access Hours",
+  "returningCustomers": "Returning Customers",
+  "retentionRate": "Customer Retention Rate",
+  "revenueTrends": "Revenue Over Time (Time Series)",
+  "paymentProviders": "Payment Adapter Distribution",
+  "packageBreakdown": "Package Utilization Breakdown",
+  "exportLedger": "Export Ledger CSV",
+  "exportSessions": "Export Sessions CSV",
+  "downloading": "Generating Export...",
+  "sessionsDelivered": "Sessions Delivered",
+  "hoursDelivered": "Total Hours",
+  "noData": "No analytics telemetry recorded yet."
+}

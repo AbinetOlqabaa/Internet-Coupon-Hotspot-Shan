@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PWAInstallButton } from './PWAInstallButton.js';
 import { OfflineIndicator } from './OfflineIndicator.js';
+import { LanguageSelector, formatTime, formatDurationClock } from '../i18n/index.js';
+import type { SupportedLocale } from '../i18n/types.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -22,6 +25,9 @@ interface CustomerPortalViewProps {
 }
 
 export function CustomerPortalView({ ownerId, businessName, onFeedback }: CustomerPortalViewProps) {
+  const { t, i18n } = useTranslation(['portal', 'common', 'validation']);
+  const currentLang = (i18n.language as SupportedLocale) || 'en';
+
   const [voucherCode, setVoucherCode] = useState('');
   const [deviceMac, setDeviceMac] = useState('AA:BB:CC:DD:EE:FF');
   const [isRedeeming, setIsRedeeming] = useState(false);
@@ -47,12 +53,12 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
         setActiveSession(data.session);
         localStorage.setItem('hotspot_customer_session', JSON.stringify(data.session));
       } else if (res.status === 404) {
-        onFeedback('Session was not found or has been purged', 'error');
+        onFeedback(t('sessionNotFound', { ns: 'portal' }), 'error');
         setActiveSession(null);
         localStorage.removeItem('hotspot_customer_session');
       }
     } catch {
-      onFeedback('Network error checking session status', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setPolling(false);
     }
@@ -79,12 +85,12 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
   const handleRedeemVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!voucherCode.trim()) {
-      onFeedback('Please enter a voucher code', 'error');
+      onFeedback(t('voucherRequired', { ns: 'validation' }), 'error');
       return;
     }
 
     if (!ownerId) {
-      onFeedback('Owner context not detected. Please ensure an operator is registered.', 'error');
+      onFeedback(t('ownerContextMissing', { ns: 'validation' }), 'error');
       return;
     }
 
@@ -103,13 +109,14 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
       if (res.ok) {
         setActiveSession(data.session);
         localStorage.setItem('hotspot_customer_session', JSON.stringify(data.session));
-        onFeedback(`Voucher redeemed! Connected to ${data.packageName}`, 'success');
+        onFeedback(t('redeemSuccess', { ns: 'portal', packageName: data.packageName }), 'success');
         setVoucherCode('');
       } else {
-        onFeedback(data.error?.message || 'Voucher redemption failed', 'error');
+        const errKey = data.error?.code || data.error?.message || 'COUPON_NOT_FOUND';
+        onFeedback(t(errKey, { ns: 'validation', defaultValue: data.error?.message }), 'error');
       }
     } catch {
-      onFeedback('Network error redeeming voucher', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setIsRedeeming(false);
     }
@@ -118,15 +125,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
   const handleDisconnectLocal = () => {
     setActiveSession(null);
     localStorage.removeItem('hotspot_customer_session');
-    onFeedback('Cleared local portal session state', 'success');
-  };
-
-  const formatRemainingTime = (seconds: number) => {
-    if (seconds <= 0) return '00:00:00';
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    onFeedback(t('sessionCleared', { ns: 'portal' }), 'success');
   };
 
   return (
@@ -141,12 +140,19 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
           textAlign: 'center',
           boxShadow: 'var(--shadow-card)',
           marginBottom: '1.5rem',
+          position: 'relative',
         }}
       >
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+          <LanguageSelector compact />
+        </div>
+
         <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>📶</span>
-        <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.5rem' }}>{businessName || 'Hotspot Wi-Fi Portal'}</h2>
+        <h2 style={{ margin: '0 0 0.25rem 0', fontSize: '1.5rem' }}>
+          {businessName || t('portalTitle', { ns: 'portal' })}
+        </h2>
         <p style={{ margin: '0 0 1rem 0', opacity: 0.85, fontSize: '0.9rem' }}>
-          Customer Self-Service Internet Access &amp; Voucher Portal
+          {t('portalSubtitle', { ns: 'portal' })}
         </p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <PWAInstallButton compact />
@@ -168,14 +174,12 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-brand-primary)' }}>
-              {activeSession.packageName || 'Internet Access Pass'}
+              {activeSession.packageName || t('activePass', { ns: 'portal' })}
             </span>
             <span
               className={`badge ${
                 activeSession.status === 'active'
                   ? 'badge-active'
-                  : activeSession.status === 'paused'
-                  ? 'badge-inactive'
                   : 'badge-inactive'
               }`}
               style={{
@@ -193,7 +197,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
                     : '#991b1b',
               }}
             >
-              {activeSession.status.toUpperCase()}
+              {t(activeSession.status, { ns: 'common' }).toUpperCase()}
             </span>
           </div>
 
@@ -209,7 +213,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
             }}
           >
             <small style={{ textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-muted)', fontWeight: 700 }}>
-              Remaining Time
+              {t('remainingTime', { ns: 'portal' })}
             </small>
             <div
               style={{
@@ -225,27 +229,29 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
                 margin: '0.25rem 0',
               }}
             >
-              {formatRemainingTime(activeSession.remainingSeconds)}
+              {formatDurationClock(activeSession.remainingSeconds)}
             </div>
             <small style={{ color: 'var(--color-muted)' }}>
               {activeSession.status === 'active'
-                ? 'Countdown clock verified with server UTC timestamps'
+                ? t('verifiedUtc', { ns: 'portal' })
                 : activeSession.status === 'paused'
-                ? 'Session is temporarily paused by operator'
-                : 'Session duration has concluded'}
+                ? t('pausedByOperator', { ns: 'portal' })
+                : t('sessionExpired', { ns: 'portal' })}
             </small>
           </div>
 
           {/* Session Details */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
             <div>
-              <span style={{ color: 'var(--color-muted)' }}>Device MAC:</span>
-              <div style={{ fontFamily: 'monospace', fontWeight: 600 }}>{activeSession.deviceMac || 'Auto-Detected'}</div>
+              <span style={{ color: 'var(--color-muted)' }}>{t('deviceMac', { ns: 'portal' })}</span>
+              <div style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                {activeSession.deviceMac || t('autoDetected', { ns: 'portal' })}
+              </div>
             </div>
             <div>
-              <span style={{ color: 'var(--color-muted)' }}>Expires At:</span>
+              <span style={{ color: 'var(--color-muted)' }}>{t('expiresAt', { ns: 'portal' })}</span>
               <div style={{ fontWeight: 600 }}>
-                {activeSession.expiresAt ? new Date(activeSession.expiresAt).toLocaleTimeString() : 'N/A'}
+                {activeSession.expiresAt ? formatTime(activeSession.expiresAt, currentLang) : 'N/A'}
               </div>
             </div>
           </div>
@@ -258,7 +264,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
               onClick={() => pollSession(activeSession.id)}
               disabled={polling}
             >
-              {polling ? 'Checking...' : '🔄 Refresh Status'}
+              {polling ? t('checking', { ns: 'portal' }) : t('refreshStatus', { ns: 'portal' })}
             </button>
             <button
               type="button"
@@ -266,7 +272,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
               style={{ flex: 1, color: 'var(--color-danger)' }}
               onClick={handleDisconnectLocal}
             >
-              Log Out
+              {t('signOut', { ns: 'common' })}
             </button>
           </div>
         </div>
@@ -282,17 +288,17 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
             marginBottom: '1.5rem',
           }}
         >
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>Redeem Internet Coupon / Voucher</h3>
+          <h3 style={{ margin: '0 0 0.5rem 0' }}>{t('redeemTitle', { ns: 'portal' })}</h3>
           <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-            Enter the voucher code from your printed receipt or SMS ticket to start your session.
+            {t('redeemSubtitle', { ns: 'portal' })}
           </p>
 
           <form onSubmit={handleRedeemVoucher}>
             <div className="form-group">
-              <label className="form-label">Voucher / Coupon Code</label>
+              <label className="form-label">{t('voucherCode', { ns: 'portal' })}</label>
               <input
                 type="text"
-                placeholder="e.g. PASS_1HR_XYZ or COUPON"
+                placeholder={t('voucherPlaceholder', { ns: 'portal' })}
                 className="form-input"
                 style={{ fontSize: '1.1rem', letterSpacing: '0.05em', textTransform: 'uppercase', textAlign: 'center', fontWeight: 700 }}
                 value={voucherCode}
@@ -302,7 +308,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
             </div>
 
             <div className="form-group">
-              <label className="form-label">Client Device MAC (Auto-Detected)</label>
+              <label className="form-label">{t('clientMac', { ns: 'portal' })}</label>
               <input
                 type="text"
                 className="form-input"
@@ -318,7 +324,7 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
               style={{ width: '100%', padding: '0.75rem', fontSize: '1rem', marginTop: '0.5rem' }}
               disabled={isRedeeming}
             >
-              {isRedeeming ? 'Validating Voucher...' : 'Connect to High-Speed Internet'}
+              {isRedeeming ? t('validatingBtn', { ns: 'portal' }) : t('connectBtn', { ns: 'portal' })}
             </button>
           </form>
         </div>
@@ -335,20 +341,20 @@ export function CustomerPortalView({ ownerId, businessName, onFeedback }: Custom
         }}
       >
         <h4 style={{ margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>ℹ️</span> Hotspot Instructions &amp; Help
+          <span>ℹ️</span> {t('helpTitle', { ns: 'portal' })}
         </h4>
         <ol style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.85rem', color: 'var(--color-muted)', display: 'flex', flexDirection: 'column', gap: '0.4rem', lineHeight: 1.5 }}>
           <li>
-            <strong>Connect to Hotspot:</strong> Connect your device to the local Wi-Fi hotspot network.
+            <strong>{t('step1Title', { ns: 'portal' })}</strong> {t('step1Desc', { ns: 'portal' })}
           </li>
           <li>
-            <strong>Get a Voucher:</strong> Purchase an access voucher from the front desk cashier or select an online package.
+            <strong>{t('step2Title', { ns: 'portal' })}</strong> {t('step2Desc', { ns: 'portal' })}
           </li>
           <li>
-            <strong>Activate Access:</strong> Enter your voucher code above and click <em>Connect</em>.
+            <strong>{t('step3Title', { ns: 'portal' })}</strong> {t('step3Desc', { ns: 'portal' })}
           </li>
           <li>
-            <strong>Keep Page Open:</strong> You can return to this portal at any time to check remaining time or extend your access.
+            <strong>{t('step4Title', { ns: 'portal' })}</strong> {t('step4Desc', { ns: 'portal' })}
           </li>
         </ol>
       </div>

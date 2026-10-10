@@ -13,6 +13,7 @@ export const OwnerEntitySchema = z.object({
   role: UserRoleSchema.default('OWNER'),
   ownerId: z.string().uuid().nullable().optional(),
   defaultCurrency: CurrencyCodeSchema,
+  language: z.enum(['en', 'am', 'om']).default('en').optional(),
   isActive: z.boolean().default(true),
   lastLoginAt: z.string().datetime().nullable().optional(),
   createdAt: z.string().datetime(),

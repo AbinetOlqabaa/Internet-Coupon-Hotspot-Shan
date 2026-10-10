@@ -1,0 +1,22 @@
+{
+  "title": "የኩፖኖች እና ቫውቸሮች ስርዓት",
+  "subtitle": "የማይመሳሰሉ አስተማማኝ የቫውቸር ኮዶችን ያመንጩ፣ የአጠቃቀም ገደቦችን ያስተዳድሩ እና ትክክለኛነታቸውን ይፈትሹ።",
+  "generateBatch": "የቫውቸር ስብስብ ፍጠር",
+  "codeLabel": "የቫውቸር ኮድ",
+  "codePlaceholder": "ለምሳሌ፦ PASS_1HR_XYZ (ራሱ እንዲያመነጭ ባዶ ይተዉት)",
+  "packageLabel": "ተዛማጅ የኢንተርኔት ጥቅል",
+  "selectPackage": "-- ጥቅል ይምረጡ --",
+  "maxUses": "ለአንድ ኮድ ከፍተኛው የአጠቃቀም ገደብ",
+  "generateBtn": "ቫውቸሮችን አመንጭ እና አስቀምጥ",
+  "testVoucher": "የቫውቸር ትክክለኛነትን መፈተሻ",
+  "testPlaceholder": "የመጠቀሚያ ብቃቱን ለመፈተሽ ኮዱን ያስገቡ",
+  "testBtn": "ኮዱን ፈትሽ",
+  "validResult": "ትክክለኛ እና ለመጠቀም ዝግጁ",
+  "invalidResult": "ልክ ያልሆነ ወይም ጊዜው ያለፈበት",
+  "issuedCoupons": "የተሰጡ ቫውቸሮች",
+  "uses": "አጠቃቀም",
+  "expires": "የሚያበቃበት",
+  "neverExpires": "አያበቃም",
+  "noCoupons": "እስካሁን የተፈጠረ ቫውቸር የለም። ከላይ ስብስብ ያመንጩ።",
+  "batchGenerated": "{{count}} ቫውቸር(ዎች) በተሳካ ሁኔታ ተፈጥረዋል።"
+}

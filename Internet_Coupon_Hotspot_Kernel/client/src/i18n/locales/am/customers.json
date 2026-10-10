@@ -1,0 +1,20 @@
+{
+  "title": "የደንበኞች አስተዳደር",
+  "subtitle": "የሆትስፖት ደንበኞችን ይከታተሉ፣ የግላዊነት ስምምነትን ያስተዳድሩ እና የመሳሪያ ማክ (MAC) አድራሻዎችን ያገናኙ።",
+  "searchPlaceholder": "በስልክ፣ በስም ወይም በማክ አድራሻ ፈልግ...",
+  "newCustomer": "ደንበኛ መዝግብ",
+  "displayName": "ሙሉ ስም / የሚታይ ስም",
+  "namePlaceholder": "ለምሳሌ፦ አበበ ቢቂላ",
+  "phone": "የስልክ ቁጥር",
+  "phonePlaceholder": "+251911223344",
+  "deviceMac": "የመሳሪያው ማክ (MAC) አድራሻ",
+  "macPlaceholder": "AA:BB:CC:DD:EE:FF",
+  "consent": "የግላዊነት እና የዳታ አያያዝ ስምምነት ተሰጥቷል",
+  "consentStatus": "የግላዊነት ስምምነት",
+  "consentGranted": "ስምምነት ተሰጥቷል",
+  "consentRevoked": "አልተሰጠም",
+  "registeredAt": "የተመዘገበበት ቀን",
+  "noCustomers": "ምንም ደንበኛ አልተገኘም። ከላይ አዲስ ደንበኛ ይመዝግቡ።",
+  "saveCustomer": "የደንበኛ መረጃ አስቀምጥ",
+  "customerSaved": "የደንበኛ መረጃ በተሳካ ሁኔታ ተቀምጧል።"
+}

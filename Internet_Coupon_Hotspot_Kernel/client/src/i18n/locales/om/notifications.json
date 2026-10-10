@@ -1,0 +1,15 @@
+{
+  "title": "Beeksisoota Sirnaa fi Akeekkachiisa",
+  "subtitle": "Haala gahuusa tikkeettii SMS, taateewwan weebhuukii fi akeekkachiisa nageenyaa.",
+  "markRead": "Akka Dubbifametti Galmeessi",
+  "allMarkedRead": "Beeksisoonni Hundi Dubbifamaniiru",
+  "noNotifications": "Beeksisni sirnaa ykn akeekkachiisni hin jiru.",
+  "statusDelivered": "Ga'eera",
+  "statusPending": "Tarree Irra",
+  "statusFailed": "Kufeera",
+  "statusRead": "Dubbifameera",
+  "channel": "Maddaa:",
+  "recipient": "Fudhataa:",
+  "deliveryAttempts": "Hanga Yaalii:",
+  "created": "Yeroo Uumame:"
+}

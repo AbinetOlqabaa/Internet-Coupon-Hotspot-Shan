@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatTime } from '../i18n/index.js';
+import type { SupportedLocale } from '../i18n/types.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -26,9 +29,12 @@ interface NotificationsModalProps {
 }
 
 export function NotificationsModal({ token, onClose, onFeedback }: NotificationsModalProps) {
+  const { t, i18n } = useTranslation(['notifications', 'common']);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
+
+  const currentLang = (i18n.language as SupportedLocale) || 'en';
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
@@ -98,36 +104,50 @@ export function NotificationsModal({ token, onClose, onFeedback }: Notifications
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'delivered':
+        return t('statusDelivered', { ns: 'notifications' });
+      case 'failed':
+        return t('statusFailed', { ns: 'notifications' });
+      case 'read':
+        return t('statusRead', { ns: 'notifications' });
+      case 'pending':
+      default:
+        return t('statusPending', { ns: 'notifications' });
+    }
+  };
+
   return (
     <div className="modal-backdrop">
       <div className="card modal-content" style={{ maxWidth: '640px', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
-            <h3 style={{ margin: 0 }}>System Notifications &amp; Alerts</h3>
+            <h3 style={{ margin: 0 }}>{t('title', { ns: 'notifications' })}</h3>
             <small style={{ color: 'rgba(255,255,255,0.6)' }}>
-              In-app, portal toasts, and delivery dispatch states
+              {t('subtitle', { ns: 'notifications' })}
             </small>
           </div>
           <button type="button" className="secondary" onClick={onClose}>
-            ✕ Close
+            ✕ {t('close', { ns: 'common' })}
           </button>
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
           <button type="button" className="secondary" onClick={handleCheckExpiring} disabled={checking}>
-            {checking ? 'Scanning...' : '⏱️ Scan Expiring Sessions'}
+            {checking ? t('loading', { ns: 'common' }) : '⏱️ Scan Expiring Sessions'}
           </button>
           <button type="button" className="secondary" onClick={fetchNotifications}>
-            🔄 Refresh
+            🔄 {t('refresh', { ns: 'common' })}
           </button>
         </div>
 
         <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {loading ? (
-            <p style={{ textAlign: 'center', padding: '1rem' }}>Loading alerts...</p>
+            <p style={{ textAlign: 'center', padding: '1rem' }}>{t('loading', { ns: 'common' })}</p>
           ) : notifications.length === 0 ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-              No notifications currently recorded.
+              {t('noNotifications', { ns: 'notifications' })}
             </div>
           ) : (
             notifications.map((n) => (
@@ -144,10 +164,10 @@ export function NotificationsModal({ token, onClose, onFeedback }: Notifications
                   <strong>{n.title}</strong>
                   <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
                     <span className={`status-pill ${n.status === 'delivered' ? 'active' : n.status === 'failed' ? 'revoked' : ''}`}>
-                      {n.status}
+                      {getStatusLabel(n.status)}
                     </span>
                     <small style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>
-                      {new Date(n.createdAt).toLocaleTimeString()}
+                      {formatTime(n.createdAt, currentLang)}
                     </small>
                   </div>
                 </div>
@@ -158,7 +178,7 @@ export function NotificationsModal({ token, onClose, onFeedback }: Notifications
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
                   <span>
-                    Channel: <code>{n.channel}</code> · Attempts: {n.deliveryAttempts}/{n.maxAttempts}
+                    {t('channel', { ns: 'notifications' })} <code>{n.channel}</code> · {t('deliveryAttempts', { ns: 'notifications' })} {n.deliveryAttempts}/{n.maxAttempts}
                   </span>
                   <div style={{ display: 'flex', gap: '0.4rem' }}>
                     {n.status === 'failed' && (
@@ -177,7 +197,7 @@ export function NotificationsModal({ token, onClose, onFeedback }: Notifications
                         style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
                         onClick={() => handleMarkRead(n.id)}
                       >
-                        Mark Read
+                        {t('markRead', { ns: 'notifications' })}
                       </button>
                     )}
                   </div>

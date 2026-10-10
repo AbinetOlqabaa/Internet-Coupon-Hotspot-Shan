@@ -1,0 +1,20 @@
+{
+  "title": "Bulchiinsa Maamiltootaa",
+  "subtitle": "Maamiltoota hootisppootii hordofaa, eeyyama eegumsa daataa to'adhaa, fi teessoo MAC walqabsiisaa.",
+  "searchPlaceholder": "Bilbila, maqaa, ykn teessoo MAC barbaadi...",
+  "newCustomer": "Maamila Galmeessi",
+  "displayName": "Maqaa Guutuu / Mul'atu",
+  "namePlaceholder": "Fkn: Abbabaa Biqilaa",
+  "phone": "Lakkoofsa Bilbilaa",
+  "phonePlaceholder": "+251911223344",
+  "deviceMac": "Teessoo MAC Meeshaa",
+  "macPlaceholder": "AA:BB:CC:DD:EE:FF",
+  "consent": "Heeyyamni eegumsa dhuunfaa fi qabiinsa daataa kennameera",
+  "consentStatus": "Heeyyama Dhuunfaa",
+  "consentGranted": "Heeyyamameera",
+  "consentRevoked": "Hin Heeyyamamne",
+  "registeredAt": "Guyyaa Galmee",
+  "noCustomers": "Maamilli hin argamne. Oliitti maamila haaraa galmeessaa.",
+  "saveCustomer": "Odeeffannoo Maamilaa Olkaawi",
+  "customerSaved": "Odeeffannoon maamilaa milkaa'inaan olkaawameera."
+}

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatDate, formatTime } from '../i18n/index.js';
+import type { SupportedLocale } from '../i18n/types.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -29,9 +32,12 @@ interface GatewaysViewProps {
 }
 
 export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
+  const { t, i18n } = useTranslation(['gateways', 'common', 'validation']);
+  const currentLang = (i18n.language as SupportedLocale) || 'en';
+
   const [gateways, setGateways] = useState<GatewayItem[]>([]);
-  const [activeAdapter, setActiveAdapter] = useState<string>('limited_owner');
-  const [capabilities, setCapabilities] = useState<GatewayCapabilities | null>(null);
+  const [_activeAdapter, setActiveAdapter] = useState<string>('limited_owner');
+  const [_capabilities, setCapabilities] = useState<GatewayCapabilities | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Register Gateway Form
@@ -65,11 +71,11 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
         }
       }
     } catch {
-      onFeedback('Failed to load gateways', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setLoading(false);
     }
-  }, [token, selectedGwId]);
+  }, [token, selectedGwId, t]);
 
   useEffect(() => {
     loadGateways();
@@ -90,14 +96,14 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
       });
       const data = await res.json();
       if (res.ok) {
-        onFeedback(`Gateway registered successfully [${data.gateway.name}]`, 'success');
-        setNewGwName('');
+        onFeedback(`Gateway registered: ${data.gateway.name}`, 'success');
+        setNewGwName('Secondary Managed AP');
         loadGateways();
       } else {
-        onFeedback(data.error?.message || 'Failed to register gateway', 'error');
+        onFeedback(data.error?.message || t('SERVER_ERROR', { ns: 'validation' }), 'error');
       }
     } catch {
-      onFeedback('Network error registering gateway', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setRegistering(false);
     }
@@ -105,7 +111,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
 
   const handleCheckHealth = async () => {
     if (!selectedGwId) {
-      onFeedback('Please select or register a gateway first', 'error');
+      onFeedback('Please select a gateway first', 'error');
       return;
     }
     setDiagLoading(true);
@@ -116,10 +122,10 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
         setDiagResult({ type: 'HEALTH_CHECK', data: data.health });
         onFeedback('Health check probe received', 'success');
       } else {
-        onFeedback(data.error?.message || 'Health check probe failed', 'error');
+        onFeedback(data.error?.message || 'Health probe failed', 'error');
       }
     } catch {
-      onFeedback('Network error querying gateway health', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setDiagLoading(false);
     }
@@ -127,7 +133,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
 
   const handleQueryAccounting = async () => {
     if (!selectedGwId) {
-      onFeedback('Please select or register a gateway first', 'error');
+      onFeedback('Please select a gateway first', 'error');
       return;
     }
     setDiagLoading(true);
@@ -141,7 +147,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
         onFeedback(data.error?.message || 'Accounting query failed', 'error');
       }
     } catch {
-      onFeedback('Network error querying accounting', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setDiagLoading(false);
     }
@@ -149,7 +155,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
 
   const handleTestDisconnect = async () => {
     if (!selectedGwId) {
-      onFeedback('Please select or register a gateway first', 'error');
+      onFeedback('Please select a gateway first', 'error');
       return;
     }
     setDiagLoading(true);
@@ -170,7 +176,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
         onFeedback(data.error?.message || 'Disconnect command failed', 'error');
       }
     } catch {
-      onFeedback('Network error executing disconnect', 'error');
+      onFeedback(t('NETWORK_ERROR', { ns: 'validation' }), 'error');
     } finally {
       setDiagLoading(false);
     }
@@ -178,75 +184,64 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
 
   return (
     <div>
-      <div className="heading">
+      <div className="heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <small>PHASE 9 &amp; 10: GATEWAY ADAPTERS &amp; NETWORK REALITY</small>
-          <h2>Network Gateways &amp; Enforcement</h2>
+          <small style={{ color: 'var(--color-brand-secondary)', letterSpacing: '0.08em', fontWeight: 800 }}>
+            {t('title', { ns: 'gateways' }).toUpperCase()}
+          </small>
+          <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.35rem' }}>{t('title', { ns: 'gateways' })}</h2>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--color-muted)', fontSize: '0.85rem' }}>
+            {t('subtitle', { ns: 'gateways' })}
+          </p>
         </div>
         <button type="button" className="btn-outline" onClick={loadGateways} disabled={loading}>
-          {loading ? 'Refreshing...' : '🔄 Refresh Gateways'}
+          {loading ? t('loading', { ns: 'common' }) : `🔄 ${t('refresh', { ns: 'common' })}`}
         </button>
       </div>
 
       {/* Prominent Architectural Disclosures */}
-      <div className="grid" style={{ marginBottom: '1.5rem' }}>
-        <article className="card" style={{ borderLeft: '4px solid #f59e0b' }}>
-          <span className="icon" style={{ background: '#fef3c7', color: '#b45309' }}>📱</span>
+      <div className="grid" style={{ marginBottom: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+        <article className="card" style={{ borderLeft: '4px solid #f59e0b', padding: '1rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+          <span style={{ fontSize: '1.5rem' }}>📱</span>
           <div>
-            <h3>Mode A: Limited Owner Mode (Android Hotspot)</h3>
-            <p style={{ margin: '0.4rem 0', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              Standard Android phones &amp; tablets running Wi-Fi hotspot <strong>cannot</strong> disconnect individual clients,
-              limit bandwidth queues, or inspect per-client traffic bytes without a dedicated managed network gateway.
+            <h3 style={{ margin: '0.25rem 0', fontSize: '1.1rem' }}>{t('limitedOwnerMode', { ns: 'gateways' })}</h3>
+            <p style={{ margin: '0.4rem 0', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--color-text)' }}>
+              {t('disclosureNote', { ns: 'gateways' })}
             </p>
             <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
               <span className="badge badge-inactive">Disconnect: Unsupported</span>
               <span className="badge badge-inactive">Bandwidth: Unmanaged</span>
-              <span className="badge badge-inactive">Per-Client Bytes: Estimated</span>
             </div>
           </div>
         </article>
 
-        <article className="card" style={{ borderLeft: '4px solid var(--color-brand-secondary)' }}>
-          <span className="icon ok">🌐</span>
+        <article className="card" style={{ borderLeft: '4px solid var(--color-brand-secondary)', padding: '1rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+          <span style={{ fontSize: '1.5rem' }}>🌐</span>
           <div>
-            <h3>Mode B: Managed Gateway Mode (Hardware Router)</h3>
-            <p style={{ margin: '0.4rem 0', fontSize: '0.85rem', lineHeight: 1.5 }}>
-              Compatible with <strong>MikroTik RouterOS, OpenWrt, CoovaChilli</strong>, or managed RADIUS/REST controllers.
-              Enforces real client kicks, dynamic bandwidth queues, and hardware-measured byte counters.
+            <h3 style={{ margin: '0.25rem 0', fontSize: '1.1rem' }}>{t('managedGatewayMode', { ns: 'gateways' })}</h3>
+            <p style={{ margin: '0.4rem 0', fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--color-text)' }}>
+              Compatible with MikroTik RouterOS, OpenWrt, CoovaChilli, or managed RADIUS/REST controllers.
             </p>
             <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-              <span className="badge badge-active">Disconnect: Authoritative</span>
-              <span className="badge badge-active">Bandwidth: Enforced</span>
-              <span className="badge badge-active">Bytes: Hardware Counter</span>
+              <span className="badge badge-active">{t('canAuthorize', { ns: 'gateways' })}</span>
+              <span className="badge badge-active">{t('canDisconnect', { ns: 'gateways' })}</span>
+              <span className="badge badge-active">{t('canLimitBandwidth', { ns: 'gateways' })}</span>
             </div>
           </div>
         </article>
-      </div>
-
-      {/* Hardware Acceptance Truth In Labeling Notice */}
-      <div style={{ background: '#f8fafc', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-card)', padding: '1rem 1.25rem', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-          <strong style={{ color: 'var(--color-brand-primary)' }}>Hardware Verification Disclosure:</strong>
-          <span className="badge badge-inactive">Physical Hardware: NOT TESTED</span>
-          <span className="badge badge-active">Test Harness Adapter: VERIFIED</span>
-        </div>
-        <p style={{ margin: 0, color: 'var(--color-muted)' }}>
-          Physical hardware router tests require access to real on-premise MikroTik or OpenWrt appliances.
-          The platform operates reliably with the validated <strong>Mock Test Gateway</strong> adapter for development, automated verification, and testing.
-        </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {/* Register Gateway Form */}
         <div style={{ background: 'white', padding: '1.5rem', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
-          <h3 style={{ margin: '0 0 1rem 0' }}>Register Network Gateway</h3>
+          <h3 style={{ margin: '0 0 1rem 0' }}>{t('registerModalTitle', { ns: 'gateways' })}</h3>
           <form onSubmit={handleRegisterGateway}>
             <div className="form-group">
-              <label className="form-label">Gateway Friendly Name</label>
+              <label className="form-label">{t('gatewayName', { ns: 'gateways' })}</label>
               <input
                 type="text"
                 className="form-input"
-                placeholder="e.g. Front-Desk MikroTik hAP ac3"
+                placeholder="Front-Desk MikroTik hAP"
                 value={newGwName}
                 onChange={(e) => setNewGwName(e.target.value)}
                 required
@@ -254,7 +249,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Operational Mode</label>
+              <label className="form-label">Mode</label>
               <select
                 className="form-input"
                 value={newGwMode}
@@ -264,34 +259,34 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
                   setNewGwAdapter(m === 'limited_owner_mode' ? 'limited_owner' : 'mock_test_gateway');
                 }}
               >
-                <option value="managed_gateway_mode">Mode B: Managed Gateway (RouterOS / Mock Gateway)</option>
-                <option value="limited_owner_mode">Mode A: Limited Owner Mode (Android System Hotspot)</option>
+                <option value="managed_gateway_mode">{t('managedGatewayMode', { ns: 'gateways' })}</option>
+                <option value="limited_owner_mode">{t('limitedOwnerMode', { ns: 'gateways' })}</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Gateway Adapter</label>
+              <label className="form-label">Adapter</label>
               <select
                 className="form-input"
                 value={newGwAdapter}
                 onChange={(e) => setNewGwAdapter(e.target.value)}
               >
-                <option value="mock_test_gateway">Mock Test Gateway Adapter (Validated Test Harness)</option>
-                <option value="limited_owner">Limited Owner Adapter (Native Unmanaged Android)</option>
+                <option value="mock_test_gateway">{t('mockGateway', { ns: 'gateways' })}</option>
+                <option value="limited_owner">Limited Owner Android Adapter</option>
               </select>
             </div>
 
             <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={registering}>
-              {registering ? 'Registering...' : '+ Register Gateway'}
+              {registering ? t('loading', { ns: 'common' }) : `+ ${t('submitGateway', { ns: 'gateways' })}`}
             </button>
           </form>
         </div>
 
         {/* Diagnostics & Command Test Harness */}
         <div style={{ background: 'white', padding: '1.5rem', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>Gateway Diagnostics Harness</h3>
+          <h3 style={{ margin: '0 0 0.5rem 0' }}>{t('diagnostics', { ns: 'gateways' })}</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>
-            Dispatch test commands to verify adapter communication, traffic telemetry, and client kicks.
+            Dispatch test commands to verify adapter communication and client telemetry.
           </p>
 
           <div className="form-group">
@@ -302,7 +297,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
               onChange={(e) => setSelectedGwId(e.target.value)}
             >
               {gateways.length === 0 ? (
-                <option value="">No registered gateways (Limited Owner default active)</option>
+                <option value="">{t('noGateways', { ns: 'gateways' })}</option>
               ) : (
                 gateways.map((g) => (
                   <option key={g.id} value={g.id}>
@@ -314,7 +309,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Test Client MAC Address</label>
+            <label className="form-label">{t('testMac', { ns: 'gateways' })}</label>
             <input
               type="text"
               className="form-input"
@@ -332,7 +327,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
               disabled={diagLoading}
               style={{ fontSize: '0.8rem' }}
             >
-              🩺 Probe Health
+              🩺 {t('runProbe', { ns: 'gateways' })}
             </button>
             <button
               type="button"
@@ -356,7 +351,7 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
 
           {diagResult && (
             <div style={{ marginTop: '1rem', background: '#0f172a', color: '#38bdf8', padding: '0.85rem', borderRadius: '0.5rem', fontFamily: 'monospace', fontSize: '0.78rem', overflowX: 'auto' }}>
-              <div style={{ color: '#94a3b8', marginBottom: '0.35rem' }}>// Result: {diagResult.type}</div>
+              <div style={{ color: '#94a3b8', marginBottom: '0.35rem' }}>// {t('probeResult', { ns: 'gateways' })}: {diagResult.type}</div>
               <pre style={{ margin: 0 }}>{JSON.stringify(diagResult.data, null, 2)}</pre>
             </div>
           )}
@@ -368,18 +363,18 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
           <thead>
             <tr style={{ background: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>Name</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{t('gatewayName', { ns: 'gateways' })}</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>Mode</th>
               <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>Adapter</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>Status</th>
-              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>Last Seen</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{t('status', { ns: 'common' })}</th>
+              <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{t('lastSeen', { ns: 'gateways' })}</th>
             </tr>
           </thead>
           <tbody>
             {gateways.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--color-muted)' }}>
-                  No physical hardware gateways registered yet. Defaulting to built-in Limited Owner Mode.
+                  {t('noGateways', { ns: 'gateways' })}
                 </td>
               </tr>
             ) : (
@@ -394,11 +389,11 @@ export function GatewaysView({ token, onFeedback }: GatewaysViewProps) {
                   <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace' }}>{g.adapterType}</td>
                   <td style={{ padding: '0.75rem 1rem' }}>
                     <span className={`badge ${g.status === 'online' ? 'badge-active' : 'badge-inactive'}`}>
-                      {g.status}
+                      {t(g.status, { ns: 'common', defaultValue: g.status })}
                     </span>
                   </td>
                   <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)', fontSize: '0.78rem' }}>
-                    {g.lastSeenAt ? new Date(g.lastSeenAt).toLocaleString() : 'Never'}
+                    {g.lastSeenAt ? `${formatDate(g.lastSeenAt, currentLang)} ${formatTime(g.lastSeenAt, currentLang)}` : 'Never'}
                   </td>
                 </tr>
               ))

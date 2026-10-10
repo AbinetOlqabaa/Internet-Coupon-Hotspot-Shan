@@ -1,0 +1,19 @@
+{
+  "title": "ትንታኔዎች፣ አጠቃቀም እና የገቢ ሪፖርቶች",
+  "subtitle": "የአጠቃላይ ሂሳብ መዝገብ ሪፖርት፣ የገቢ ሁኔታ እና የደንበኞች ተመላላሽነት መረጃ።",
+  "totalGross": "ጠቅላላ ገቢ",
+  "totalRefunds": "ጠቅላላ ተመላሾች",
+  "netBalance": "የተጣራ ቀሪ ሂሳብ",
+  "deliveredHours": "የተሰጡ የኢንተርኔት ሰዓታት",
+  "returningCustomers": "ተመላላሽ ደንበኞች",
+  "retentionRate": "የደንበኞች ታማኝነት ምጣኔ",
+  "revenueTrends": "የገቢ ሁኔታ በጊዜ ሂደት",
+  "paymentProviders": "የክፍያ ዘዴዎች ስርጭት",
+  "packageBreakdown": "የጥቅሎች አጠቃቀም ዝርዝር",
+  "exportLedger": "የሂሳብ መዝገብ CSV ላክ",
+  "exportSessions": "የክፍለ-ጊዜዎች CSV ላክ",
+  "downloading": "ሪፖርቱን በማዘጋጀት ላይ...",
+  "sessionsDelivered": "የተሰጡ ክፍለ-ጊዜዎች",
+  "hoursDelivered": "ጠቅላላ ሰዓታት",
+  "noData": "እስካሁን ምንም የትንታኔ መረጃ አልተመዘገበም።"
+}

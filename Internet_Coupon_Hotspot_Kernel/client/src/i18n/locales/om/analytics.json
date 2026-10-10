@@ -1,0 +1,19 @@
+{
+  "title": "Xiinxala, Fayyadama fi Gabaasa Galii",
+  "subtitle": "Gabaasa herregaa amansiisaa, saffisa galii, fi hordoffii maamiltoota deebi'anii.",
+  "totalGross": "Galii Waliigalaa",
+  "totalRefunds": "Deebii Waliigalaa",
+  "netBalance": "Madaallii Qulqulluu",
+  "deliveredHours": "Sa'aatiiwwan Tajaajilaa Kennaman",
+  "returningCustomers": "Maamiltoota Deebi'an",
+  "retentionRate": "Reeshiyoo Maamiltoota Deebi'anii",
+  "revenueTrends": "Adeemsa Galii Yeroon",
+  "paymentProviders": "Qoodama Karaalee Kaffaltii",
+  "packageBreakdown": "Fayyadama Paakeejiiwwanii",
+  "exportLedger": "Galmee Herregaa CSV Baasi",
+  "exportSessions": "Tajaajilaawwan CSV Baasi",
+  "downloading": "Gabaasa Qopheessaa Jira...",
+  "sessionsDelivered": "Tajaajila Kennaman",
+  "hoursDelivered": "Sa'aatiiwwan Waliigalaa",
+  "noData": "Odeeffannoon xiinxalaa hin galmoofne."
+}

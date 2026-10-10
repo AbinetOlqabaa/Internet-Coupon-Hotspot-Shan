@@ -1,8 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOnlineStatus } from './useOnlineStatus.js';
 
 export const OfflineIndicator: React.FC = () => {
   const isOnline = useOnlineStatus();
+  const { t } = useTranslation('common');
 
   if (isOnline) return null;
 
@@ -37,7 +39,7 @@ export const OfflineIndicator: React.FC = () => {
           animation: 'pulse 1.5s infinite',
         }}
       />
-      <span>Offline Mode — Showing cached data. Reconnecting...</span>
+      <span>{t('offlineNotice')}</span>
     </div>
   );
 };

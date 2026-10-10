@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatCurrency, formatNumber } from '../i18n/index.js';
+import type { SupportedLocale } from '../i18n/types.js';
 
 const API = import.meta.env.VITE_API_BASE_URL ?? '';
 
@@ -70,6 +73,9 @@ interface AnalyticsViewProps {
 }
 
 export function AnalyticsView({ token, onFeedback }: AnalyticsViewProps) {
+  const { t, i18n } = useTranslation(['analytics', 'common']);
+  const currentLang = (i18n.language as SupportedLocale) || 'en';
+
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [revenue, setRevenue] = useState<RevenueData | null>(null);
   const [usage, setUsage] = useState<UsageData | null>(null);
@@ -127,136 +133,129 @@ export function AnalyticsView({ token, onFeedback }: AnalyticsViewProps) {
     }
   };
 
-  const formatMoney = (minor: number, curr = 'USD') => `${curr} ${(minor / 100).toFixed(2)}`;
+  const formatMoney = (minor: number, curr = 'USD') => {
+    return formatCurrency(minor, curr, currentLang);
+  };
 
   if (loading && !overview) {
     return (
       <div className="tab-pane active" style={{ textAlign: 'center', padding: '3rem' }}>
-        <p>Loading authoritative analytics &amp; ledger telemetry...</p>
+        <p>{t('loading', { ns: 'common' })}</p>
       </div>
     );
   }
 
   return (
     <div className="tab-pane active">
-      <div className="heading">
+      <div className="heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <small>EXECUTIVE TELEMETRY</small>
-          <h2>Analytics &amp; Data Insights</h2>
-          <p>
-            Real-time integer financial accounting, session duration telemetry, and customer retention metrics.
+          <small style={{ color: 'var(--color-brand-secondary)', letterSpacing: '0.08em', fontWeight: 800 }}>
+            {t('title', { ns: 'analytics' }).toUpperCase()}
+          </small>
+          <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.35rem' }}>{t('title', { ns: 'analytics' })}</h2>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--color-muted)', fontSize: '0.85rem' }}>
+            {t('subtitle', { ns: 'analytics' })}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             type="button"
-            className="secondary"
+            className="btn-outline"
             onClick={() => handleExport('ledger')}
             disabled={downloading !== null}
           >
-            {downloading === 'ledger' ? 'Exporting...' : '📥 Export Ledger CSV'}
+            {downloading === 'ledger' ? t('downloading', { ns: 'analytics' }) : `📥 ${t('exportLedger', { ns: 'analytics' })}`}
           </button>
           <button
             type="button"
-            className="secondary"
+            className="btn-outline"
             onClick={() => handleExport('sessions')}
             disabled={downloading !== null}
           >
-            {downloading === 'sessions' ? 'Exporting...' : '📥 Export Sessions CSV'}
+            {downloading === 'sessions' ? t('downloading', { ns: 'analytics' }) : `📥 ${t('exportSessions', { ns: 'analytics' })}`}
           </button>
-          <button type="button" onClick={fetchAnalytics}>
-            🔄 Refresh
+          <button type="button" className="btn-outline" onClick={fetchAnalytics}>
+            🔄 {t('refresh', { ns: 'common' })}
           </button>
         </div>
       </div>
 
       {overview && (
-        <div className="grid" style={{ marginBottom: '1.5rem' }}>
-          <article className="card">
-            <span className="icon ok">💰</span>
-            <div>
-              <h3>{formatMoney(overview.revenue.netBalanceMinor, overview.revenue.currency)}</h3>
-              <p>
-                Net Revenue (Gross: {formatMoney(overview.revenue.totalRevenueMinor, overview.revenue.currency)} · Refunds:{' '}
-                {formatMoney(overview.revenue.totalRefundsMinor, overview.revenue.currency)})
+        <div className="grid" style={{ marginBottom: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          <article className="card" style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+            <span style={{ fontSize: '1.5rem' }}>💰</span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{formatMoney(overview.revenue.netBalanceMinor, overview.revenue.currency)}</h3>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                {t('netBalance', { ns: 'analytics' })} ({t('totalGross', { ns: 'analytics' })}: {formatMoney(overview.revenue.totalRevenueMinor, overview.revenue.currency)})
               </p>
             </div>
-            <small>Audited</small>
           </article>
 
-          <article className="card">
-            <span className="icon ok">⏱️</span>
-            <div>
-              <h3>{usage ? `${usage.totalDeliveredHours} hrs` : '...'}</h3>
-              <p>
-                Total Hotspot Delivered Time · {overview.sessions.active} active · {overview.sessions.expired} completed
+          <article className="card" style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+            <span style={{ fontSize: '1.5rem' }}>⏱️</span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{usage ? `${formatNumber(usage.totalDeliveredHours, currentLang)} hrs` : '...'}</h3>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                {t('deliveredHours', { ns: 'analytics' })} · {overview.sessions.active} {t('active', { ns: 'common' })}
               </p>
             </div>
-            <small>Authoritative</small>
           </article>
 
-          <article className="card">
-            <span className="icon ok">👥</span>
-            <div>
-              <h3>{retention ? `${retention.retentionRatePercentage}%` : '...'}</h3>
-              <p>
-                Customer Retention Rate ({retention?.returningCustomers ?? 0} repeat of {retention?.totalCustomers ?? 0}{' '}
-                total)
+          <article className="card" style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+            <span style={{ fontSize: '1.5rem' }}>👥</span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{retention ? `${retention.retentionRatePercentage}%` : '...'}</h3>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                {t('retentionRate', { ns: 'analytics' })} ({retention?.returningCustomers ?? 0} {t('returningCustomers', { ns: 'analytics' })})
               </p>
             </div>
-            <small>Cohorts</small>
           </article>
 
-          <article className="card">
-            <span className="icon ok">🌐</span>
-            <div>
-              <h3>{overview.gateways.online} / {overview.gateways.total} Gateways Online</h3>
-              <p>
-                {overview.gateways.unmanaged} unmanaged or simulated adapters reporting
+          <article className="card" style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)' }}>
+            <span style={{ fontSize: '1.5rem' }}>🌐</span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{overview.gateways.online} / {overview.gateways.total}</h3>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--color-muted)' }}>
+                Gateways {t('online', { ns: 'common' })}
               </p>
             </div>
-            <small>Network</small>
           </article>
         </div>
       )}
 
       {/* Revenue Breakdown */}
-      <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-        <div className="heading" style={{ marginBottom: '1rem' }}>
+      <div style={{ marginBottom: '1.5rem', padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
-            <small>FINANCIAL TIME SERIES</small>
-            <h3 style={{ margin: 0 }}>Daily Revenue Ledger</h3>
+            <h3 style={{ margin: 0 }}>{t('revenueTrends', { ns: 'analytics' })}</h3>
+            <small style={{ color: 'var(--color-muted)' }}>Double-Entry Journal History</small>
           </div>
-          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
-            Source: Ledger Double-Entry Journals
-          </span>
         </div>
 
         {revenue && revenue.timeSeries.length > 0 ? (
-          <div className="table-responsive">
-            <table>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
               <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Transactions</th>
-                  <th>Gross Sales</th>
-                  <th>Refunds</th>
-                  <th>Net Balance</th>
+                <tr style={{ background: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
+                  <th style={{ padding: '0.65rem 0.85rem' }}>{t('date', { ns: 'common' })}</th>
+                  <th style={{ padding: '0.65rem 0.85rem' }}>Transactions</th>
+                  <th style={{ padding: '0.65rem 0.85rem' }}>{t('totalGross', { ns: 'analytics' })}</th>
+                  <th style={{ padding: '0.65rem 0.85rem' }}>{t('totalRefunds', { ns: 'analytics' })}</th>
+                  <th style={{ padding: '0.65rem 0.85rem' }}>{t('netBalance', { ns: 'analytics' })}</th>
                 </tr>
               </thead>
               <tbody>
                 {revenue.timeSeries.map((row) => (
-                  <tr key={row.date}>
-                    <td>
-                      <code>{row.date}</code>
-                    </td>
-                    <td>{row.count}</td>
-                    <td style={{ color: '#10b981' }}>{formatMoney(row.grossMinor)}</td>
-                    <td style={{ color: row.refundsMinor > 0 ? '#ef4444' : 'inherit' }}>
+                  <tr key={row.date} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    <td style={{ padding: '0.65rem 0.85rem', fontFamily: 'monospace' }}>{row.date}</td>
+                    <td style={{ padding: '0.65rem 0.85rem' }}>{row.count}</td>
+                    <td style={{ padding: '0.65rem 0.85rem', color: 'var(--color-success)' }}>{formatMoney(row.grossMinor)}</td>
+                    <td style={{ padding: '0.65rem 0.85rem', color: row.refundsMinor > 0 ? 'var(--color-danger)' : 'inherit' }}>
                       {formatMoney(row.refundsMinor)}
                     </td>
-                    <td>
-                      <strong>{formatMoney(row.netMinor)}</strong>
+                    <td style={{ padding: '0.65rem 0.85rem', fontWeight: 700 }}>
+                      {formatMoney(row.netMinor)}
                     </td>
                   </tr>
                 ))}
@@ -264,33 +263,28 @@ export function AnalyticsView({ token, onFeedback }: AnalyticsViewProps) {
             </table>
           </div>
         ) : (
-          <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>
-            No journal entries recorded yet. Complete voucher sales or cash payments to populate ledger records.
-          </p>
+          <p style={{ color: 'var(--color-muted)', margin: 0 }}>{t('noData', { ns: 'analytics' })}</p>
         )}
       </div>
 
       {/* Package Usage & Retention */}
-      <div className="grid" style={{ marginBottom: '1.5rem' }}>
-        <div className="card" style={{ padding: '1.25rem' }}>
-          <div className="heading" style={{ marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Package Demand Distribution</h3>
-            <small>By Delivered Time</small>
-          </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+          <h3 style={{ margin: '0 0 1rem 0' }}>{t('packageBreakdown', { ns: 'analytics' })}</h3>
           {usage && usage.packageBreakdown.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {usage.packageBreakdown.map((pkg) => (
                 <div key={pkg.packageId}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                    <span>{pkg.packageName}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 600 }}>{pkg.packageName}</span>
+                    <span style={{ color: 'var(--color-muted)' }}>
                       {pkg.sessionCount} sessions · {Math.round((pkg.totalDurationSeconds / 3600) * 10) / 10}h
                     </span>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.1)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--color-bg)', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
                     <div
                       style={{
-                        background: '#3b82f6',
+                        background: 'var(--color-brand-secondary)',
                         height: '100%',
                         width: `${Math.min(100, Math.max(5, (pkg.sessionCount / (overview?.sessions.total || 1)) * 100))}%`,
                       }}
@@ -300,47 +294,32 @@ export function AnalyticsView({ token, onFeedback }: AnalyticsViewProps) {
               ))}
             </div>
           ) : (
-            <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>No package sessions recorded.</p>
+            <p style={{ color: 'var(--color-muted)', margin: 0 }}>{t('noData', { ns: 'analytics' })}</p>
           )}
         </div>
 
-        <div className="card" style={{ padding: '1.25rem' }}>
-          <div className="heading" style={{ marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Customer Engagement &amp; Retention</h3>
-            <small>Repeat Visits</small>
-          </div>
+        <div style={{ padding: '1.25rem', background: 'white', borderRadius: 'var(--radius-card)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-card)' }}>
+          <h3 style={{ margin: '0 0 1rem 0' }}>{t('retentionRate', { ns: 'analytics' })}</h3>
           {retention ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
                 <span>Total Customers Tracked</span>
                 <strong>{retention.totalCustomers}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.5rem' }}>
-                <span>Returning Customers (&gt;1 session)</span>
-                <strong style={{ color: '#10b981' }}>{retention.returningCustomers}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '0.5rem' }}>
-                <span>Single Visit Visitors</span>
-                <span>{retention.singleVisitCustomers}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                <span>{t('returningCustomers', { ns: 'analytics' })}</span>
+                <strong style={{ color: 'var(--color-success)' }}>{retention.returningCustomers}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Cohort Retention Rate</span>
-                <strong style={{ color: '#3b82f6', fontSize: '1.1rem' }}>{retention.retentionRatePercentage}%</strong>
+                <span>{t('retentionRate', { ns: 'analytics' })}</span>
+                <strong style={{ color: 'var(--color-brand-secondary)', fontSize: '1.1rem' }}>{retention.retentionRatePercentage}%</strong>
               </div>
             </div>
           ) : (
-            <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>No customer data available.</p>
+            <p style={{ color: 'var(--color-muted)', margin: 0 }}>{t('noData', { ns: 'analytics' })}</p>
           )}
         </div>
       </div>
-
-      <aside>
-        <strong>Telemetry Provenance &amp; Verification</strong>
-        <p>
-          All metrics above derive from authoritative server timestamps, integer minor-unit double-entry records, and
-          consent-verified sessions. Data freshness timestamp: {overview?.dataFreshness.timestamp ?? 'Current'}.
-        </p>
-      </aside>
     </div>
   );
 }

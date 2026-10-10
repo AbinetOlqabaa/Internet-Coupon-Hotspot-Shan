@@ -1,0 +1,15 @@
+{
+  "title": "System Notifications & Alerts",
+  "subtitle": "Delivery status of SMS tickets, webhook events, and security alerts.",
+  "markRead": "Mark as Read",
+  "allMarkedRead": "All Notifications Read",
+  "noNotifications": "No active system notifications or alerts.",
+  "statusDelivered": "Delivered",
+  "statusPending": "Queued",
+  "statusFailed": "Failed",
+  "statusRead": "Read",
+  "channel": "Channel:",
+  "recipient": "Recipient:",
+  "deliveryAttempts": "Attempts:",
+  "created": "Timestamp:"
+}

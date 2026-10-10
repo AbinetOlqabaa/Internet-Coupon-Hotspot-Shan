@@ -1,0 +1,15 @@
+{
+  "title": "የስርዓት ማሳወቂያዎች እና ማስጠንቀቂያዎች",
+  "subtitle": "የኤስኤምኤስ ትኬቶች፣ የዌብሁክ ክስተቶች እና የደህንነት ማስጠንቀቂያዎች የመድረስ ሁኔታ።",
+  "markRead": "እንደተነበበ ምልክት አድርግ",
+  "allMarkedRead": "ሁሉም ማሳወቂያዎች ተነበዋል",
+  "noNotifications": "ምንም ንቁ የስርዓት ማሳወቂያ ወይም ማስጠንቀቂያ የለም።",
+  "statusDelivered": "ደርሷል",
+  "statusPending": "በተራ ላይ",
+  "statusFailed": "አልደረሰም",
+  "statusRead": "ተነቧል",
+  "channel": "ቻናል፦",
+  "recipient": "ተቀባይ፦",
+  "deliveryAttempts": "የሙከራ ብዛት፦",
+  "created": "የተፈጠረበት ጊዜ፦"
+}

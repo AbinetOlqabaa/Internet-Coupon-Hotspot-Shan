@@ -1,0 +1,20 @@
+{
+  "title": "Customer Management",
+  "subtitle": "Track hotspot patrons, manage privacy consent, and link device MAC addresses.",
+  "searchPlaceholder": "Search phone, name, or MAC address...",
+  "newCustomer": "Register Customer",
+  "displayName": "Full Name / Display Name",
+  "namePlaceholder": "e.g. Abebe Bikila",
+  "phone": "Phone Number",
+  "phonePlaceholder": "+251911223344",
+  "deviceMac": "Device Hardware MAC",
+  "macPlaceholder": "AA:BB:CC:DD:EE:FF",
+  "consent": "Privacy & Data Retention Consent Granted",
+  "consentStatus": "Privacy Consent",
+  "consentGranted": "Consent Active",
+  "consentRevoked": "Not Granted",
+  "registeredAt": "Registration Date",
+  "noCustomers": "No customers found. Register new customers above.",
+  "saveCustomer": "Save Customer Record",
+  "customerSaved": "Customer record saved successfully."
+}

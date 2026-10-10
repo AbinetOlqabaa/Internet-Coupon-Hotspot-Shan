@@ -150,4 +150,43 @@ describe('Phase 3: Authentication, Owner Isolation, Permissions & Audit', () => 
     expect(auditLogs1[0].action).toBe('owner.registered');
     expect(auditLogs1[0].ownerId).toBe(reg1.owner.id);
   });
+
+  it('updates and persists user language preference via PATCH /api/v1/auth/preferences', async () => {
+    const reg = await request(app)
+      .post('/api/v1/auth/register')
+      .send({
+        email: `lang_${Date.now()}@hotspot.local`,
+        password: 'securePassword123!',
+        businessName: 'Language Test Hotspot',
+      });
+
+    const token = reg.body.token;
+
+    // Update language to Amharic
+    const resAm = await request(app)
+      .patch('/api/v1/auth/preferences')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ language: 'am' });
+
+    expect(resAm.status).toBe(200);
+    expect(resAm.body.success).toBe(true);
+    expect(resAm.body.owner.language).toBe('am');
+
+    // Update language to Afaan Oromo
+    const resOm = await request(app)
+      .patch('/api/v1/auth/preferences')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ language: 'om' });
+
+    expect(resOm.status).toBe(200);
+    expect(resOm.body.owner.language).toBe('om');
+
+    // Verify GET /api/v1/auth/me returns updated language
+    const meRes = await request(app)
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(meRes.status).toBe(200);
+    expect(meRes.body.owner.language).toBe('om');
+  });
 });
